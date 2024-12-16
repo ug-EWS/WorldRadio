@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:title="Otomatik kapanma">
+        <menu>
+            <group
+                android:checkableBehavior="single"
+                android:enabled="true">
+                <item
+                    android:id="@+id/autoDisabled"
+                    android:title="Devre dışı" />
+                <item
+                    android:id="@+id/auto10Minutes"
+                    android:title="10 dakika sonra" />
+                <item
+                    android:id="@+id/auto30Minutes"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:title="30 dakika sonra" />
+                <item
+                    android:id="@+id/auto1Hour"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:title="60 dakika sonra" />
+            </group>
+        </menu>
+    </item>
+    <item
+        android:id="@+id/about"
+        android:title="@string/about" />
+</menu>

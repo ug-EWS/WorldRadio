@@ -1,0 +1,54 @@
+<resources>
+    <string name="app_name" translatable="false">WorldRadio</string>
+
+    <!-- Settings menu -->
+    <string name="about">About</string>
+
+    <!-- Playlist and video options -->
+    <string name="insert_above">Insert above</string>
+    <string name="insert_below">Insert below</string>
+    <string name="edit">Edit</string>
+    <string name="delete">Delete</string>
+    <string name="share">Share</string>
+
+    <!-- Playlist alert dialog -->
+    <string name="add_playlist">Add playlist</string>
+    <string name="edit_playlist">Edit playlist</string>
+    <string name="title">Title</string>
+    <string name="default_title">My playlist</string>
+    <string name="icon">Icon</string>
+
+    <!-- Radio station alert dialog -->
+    <string name="add_video">Add radio station</string>
+    <string name="url_id_search">Search…</string>
+    <string name="search_by_name">Name:</string>
+    <string name="search_by_country">Country:</string>
+    <string name="search_by_language">Language:</string>
+    <string name="search_by_tag">Tag:</string>
+    <string name="search_by_state">State:</string>
+
+    <!-- Delete alert dialog -->
+    <string name="delete_video_alert">Are you sure you want to delete this video?</string>
+    <string name="delete_playlist_alert">Are you sure you want to delete this playlist?</string>
+
+    <!-- Info alert dialog -->
+    <string name="copy_stream_url">Copy stream URL</string>
+    <string name="copy_favicon_url">Copy favicon URL</string>
+    <string name="copy_station_uuid">Copy station UUID</string>
+
+    <!-- Dialog buttons-->
+    <string name="dialog_button_add">Add</string>
+    <string name="dialog_button_apply">Apply</string>
+    <string name="dialog_button_cancel">Cancel</string>
+    <string name="dialog_button_delete">Delete</string>
+    <string name="dialog_button_no">No</string>
+    <string name="dialog_button_ok">OK</string>
+
+    <!-- Toast messages -->
+    <string name="copy_to_clipboard">Copied to clipboard</string>
+    <string name="station_already_added">Station already added</string>
+
+    <string name="no_playlists">There are no playlists.\n\nTap the \"+\" button\nto add a playlist.</string>
+    <string name="no_videos">The playlist is empty.\n\nTap the \"+\" button\nto add a station.</string>
+
+</resources>

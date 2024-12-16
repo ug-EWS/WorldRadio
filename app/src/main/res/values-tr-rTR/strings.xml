@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name" translatable="false">WorldRadio</string>
+
+    <!-- Settings menu -->
+    <string name="about">Hakkında</string>
+
+    <!-- Playlist and video options -->
+    <string name="insert_above">Üstüne ekle</string>
+    <string name="insert_below">Altına ekle</string>
+    <string name="edit">Düzenle</string>
+    <string name="delete">Sil</string>
+    <string name="share">Paylaş</string>
+
+    <!-- Playlist alert dialog -->
+    <string name="add_playlist">Oynatma listesi ekle</string>
+    <string name="edit_playlist">Oynatma listesini düzenle</string>
+    <string name="title">Başlık</string>
+    <string name="default_title">Oynatma listem</string>
+    <string name="icon">Simge</string>
+
+    <!-- Radio station alert dialog -->
+    <string name="add_video">Radyo kanalı ekle</string>
+    <string name="url_id_search">Ara…</string>
+    <string name="search_by_name">Ad:</string>
+    <string name="search_by_country">Ülke:</string>
+    <string name="search_by_language">Dil:</string>
+    <string name="search_by_tag">Konu:</string>
+    <string name="search_by_state">Eyalet:</string>
+
+    <!-- Delete alert dialog -->
+    <string name="delete_video_alert">Bu kanal silinsin mi?</string>
+    <string name="delete_playlist_alert">Bu oynatma listesi silinsin mi?</string>
+
+    <!-- Info alert dialog -->
+    <string name="copy_stream_url">Yayın URL\'sini kopyala</string>
+    <string name="copy_favicon_url">Simge URL\'sini kopyala</string>
+    <string name="copy_station_uuid">Kanal UUID\'sini kopyala</string>
+
+    <!-- Dialog buttons-->
+    <string name="dialog_button_add">Ekle</string>
+    <string name="dialog_button_apply">Uygula</string>
+    <string name="dialog_button_cancel">İptal</string>
+    <string name="dialog_button_delete">Sil</string>
+    <string name="dialog_button_no">Hayır</string>
+    <string name="dialog_button_ok">Tamam</string>
+
+    <!-- Toast messages -->
+    <string name="copy_to_clipboard">Panoya kopyalandı</string>
+    <string name="station_already_added">Kanal zaten eklenmiş</string>
+
+    <string name="no_playlists">Oynatma listesi yok.\n\nBir oynatma listesi eklemek için\n\"+\" düğmesine basın.</string>
+    <string name="no_videos">Oynatma listesi boş.\n\nBir kanal eklemek için \n\"+\" düğmesine basın.</string>
+
+</resources>
