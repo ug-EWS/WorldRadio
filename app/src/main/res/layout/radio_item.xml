@@ -42,7 +42,7 @@
             android:layout_weight="0"
             android:background="@drawable/ripple_on_transparent"
             android:padding="16dp"
-            app:srcCompat="@drawable/baseline_playlist_add_24" />
+            app:srcCompat="@drawable/baseline_more_vert_24" />
     </LinearLayout>
 
     <LinearLayout

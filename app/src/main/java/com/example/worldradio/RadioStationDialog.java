@@ -40,6 +40,7 @@ class RadioStationDialog {
     TextView loading;
     SearchMode searchMode;
     boolean searchByCountry;
+    int whereToAdd;
 
     RadioStationDialog(MainActivity _activity) {
         activity = _activity;
@@ -129,6 +130,11 @@ class RadioStationDialog {
     }
 
     public void show() {
+        show(0);
+    }
+
+    public void show(int _whereToAdd) {
+        whereToAdd = _whereToAdd;
         dialog.show();
     }
 }

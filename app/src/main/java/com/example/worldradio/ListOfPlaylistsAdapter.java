@@ -55,7 +55,7 @@ class ListOfPlaylistsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         size.setText(String.valueOf(activity.listOfPlaylists.getPlaylistAt(pos).getLength()).concat(" kanal"));
         title.setTextColor(activity.playingPlaylistIndex == pos ? Color.GREEN : Color.WHITE);
 
-        PopupMenu popupMenu = activity.getPlaylistPopupMenu(options, pos);
+        PopupMenu popupMenu = activity.getPlaylistPopupMenu(options, false, pos);
 
         options.setOnClickListener(view -> popupMenu.show());
     }

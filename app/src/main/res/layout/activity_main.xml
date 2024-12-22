@@ -63,7 +63,7 @@
                     android:layout_height="wrap_content"
                     android:background="@drawable/ripple_on_black"
                     android:padding="16dp"
-                    app:srcCompat="@drawable/baseline_info_outline_24" />
+                    app:srcCompat="@drawable/baseline_skip_previous_24" />
 
                 <ImageView
                     android:id="@+id/playButton"
@@ -79,7 +79,7 @@
                     android:layout_height="wrap_content"
                     android:background="@drawable/ripple_on_black"
                     android:padding="16dp"
-                    app:srcCompat="@drawable/baseline_playlist_add_24" />
+                    app:srcCompat="@drawable/baseline_skip_next_24" />
 
             </LinearLayout>
 
@@ -125,6 +125,16 @@
                     android:textSize="16sp" />
 
                 <ImageView
+                    android:id="@+id/options"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/ripple_on_dark_grey"
+                    android:clickable="true"
+                    android:padding="16dp"
+                    app:srcCompat="@drawable/baseline_more_vert_24"
+                    tools:srcCompat="@drawable/baseline_more_vert_24" />
+
+                <ImageView
                     android:id="@+id/settings"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -147,7 +157,8 @@
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:clipToPadding="false"
-                    android:paddingBottom="84dp">
+                    android:paddingBottom="84dp"
+                    android:scrollbars="vertical">
 
                 </androidx.recyclerview.widget.RecyclerView>
 
@@ -156,7 +167,8 @@
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:clipToPadding="false"
-                    android:paddingBottom="84dp">
+                    android:paddingBottom="84dp"
+                    android:scrollbars="vertical">
 
                 </androidx.recyclerview.widget.RecyclerView>
 

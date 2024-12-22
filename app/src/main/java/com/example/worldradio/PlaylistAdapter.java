@@ -8,6 +8,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.widget.PopupMenu;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
@@ -49,7 +50,8 @@ class PlaylistAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> impl
         if (thisVideo.faviconUrl.isEmpty()) thumbnail.setImageResource(R.drawable.baseline_radio_24);
         else Glide.with(activity).load(thisVideo.faviconUrl).into(thumbnail);
 
-        options.setOnClickListener(getButtonOnClickListener(position));
+        PopupMenu popupMenu = activity.getRadioStationPopupMenu(options, pos);
+        options.setOnClickListener(view -> popupMenu.show());
     }
 
     @Override
@@ -58,7 +60,7 @@ class PlaylistAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> impl
     }
 
     public void insertItem(int index) {
-        if(activity.playingRadioStation != null && index <= activity.playingRadioStationIndex && activity.currentPlaylistIndex == activity.playingPlaylistIndex) {
+        if (activity.playingRadioStation != null && index <= activity.playingRadioStationIndex && activity.currentPlaylistIndex == activity.playingPlaylistIndex) {
             activity.playingRadioStationIndex++;
             activity.playingRadioStation = activity.currentPlaylist.getRadioStationAt(activity.playingRadioStationIndex);
         }
@@ -67,11 +69,11 @@ class PlaylistAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> impl
     }
 
     public void removeItem(int index) {
-        if(activity.playingRadioStation != null && activity.currentPlaylistIndex == activity.playingPlaylistIndex) {
-            if(index < activity.playingRadioStationIndex) {
+        if (activity.playingRadioStation != null && activity.currentPlaylistIndex == activity.playingPlaylistIndex) {
+            if (index < activity.playingRadioStationIndex) {
                 activity.playingRadioStationIndex = activity.currentPlaylist.getIndexOf(activity.playingRadioStation);
             }
-            if(index == activity.playingRadioStationIndex) {
+            if (index == activity.playingRadioStationIndex) {
                 activity.closePlayer();
             }
         }
@@ -81,8 +83,13 @@ class PlaylistAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> impl
 
     private void setItemOnClickListener(View v, int position) {
         v.setOnClickListener(view -> {
-            if (!(activity.currentPlaylistIndex == activity.playingPlaylistIndex && position == activity.playingRadioStationIndex))
-                activity.playRadioStation(position);});
+            if (activity.currentPlaylistIndex == activity.playingPlaylistIndex && position == activity.playingRadioStationIndex) {
+                if (activity.isPlaying) activity.exoPlayer.pause();
+                else activity.exoPlayer.play();
+                activity.onStateChange(!activity.isPlaying);
+            }
+            else activity.playRadioStation(position, true);
+        });
     }
 
     private View.OnClickListener getButtonOnClickListener(int position) {

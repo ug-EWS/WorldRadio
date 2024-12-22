@@ -2,6 +2,8 @@ package com.example.worldradio;
 
 import android.content.DialogInterface;
 import android.graphics.Color;
+import android.graphics.Paint;
+import android.text.Spannable;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
@@ -29,7 +31,7 @@ class PlaylistDialog {
         View.OnClickListener onClickListener = view -> {
             selectedIcon = iconSelector.indexOfChild(view);
             for (int i = 0; i < 5; i++) {
-                iconSelector.getChildAt(i).setBackgroundColor(i == selectedIcon ? activity.getResources().getColor(R.color.teal_700) : Color.TRANSPARENT);
+                iconSelector.getChildAt(i).setBackgroundResource(i == selectedIcon ? R.drawable.icon_selector_1 : R.drawable.icon_selector);
             }
         };
         for (int i = 0; i < 5; i++) {
@@ -47,7 +49,7 @@ class PlaylistDialog {
         boolean _newPlaylist = _forPlaylist == -1;
         builder.setTitle(activity.getString(_newPlaylist ? R.string.add_playlist : R.string.edit_playlist));
         if (_newPlaylist) {
-            iconSelector.getChildAt(0).setBackgroundColor(activity.getResources().getColor(R.color.teal_700, activity.getTheme()));
+            iconSelector.getChildAt(0).setBackgroundResource(R.drawable.icon_selector_1);
             builder.setPositiveButton(activity.getString(R.string.dialog_button_add), (dialog, which) -> {
                 String text = editText.getText().toString();
                 if (text.isEmpty()) text = editText.getHint().toString();
@@ -60,12 +62,13 @@ class PlaylistDialog {
             editText.setText(toEdit.title);
             selectedIcon = toEdit.icon;
             if (selectedIcon > 4 || selectedIcon < 0) selectedIcon = 0;
-            iconSelector.getChildAt(selectedIcon).setBackgroundColor(activity.getResources().getColor(R.color.teal_700));
+            iconSelector.getChildAt(selectedIcon).setBackgroundResource(R.drawable.icon_selector_1);
             builder.setPositiveButton(activity.getString(R.string.dialog_button_apply), (dialog, which) -> {
                 String text = editText.getText().toString();
                 toEdit.title = text;
                 toEdit.icon = selectedIcon;
                 activity.listOfPlaylistsAdapter.notifyItemChanged(_forPlaylist);
+                if (activity.playlistOpen) activity.titleText.setText(text);
             });
         }
 
@@ -73,7 +76,7 @@ class PlaylistDialog {
     }
 
     public void show() {
-        dialog.show();
+        show(0);
     }
 
     public void show(int _whereToAdd) {

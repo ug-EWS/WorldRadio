@@ -59,8 +59,8 @@ class SearchResultsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
             if (activity.currentPlaylist.contains(_station)) {
                 activity.showMessage("Bu radyo kanalı zaten eklenmiş.");
             } else {
-                activity.currentPlaylist.addRadioStation(_station);
-                activity.playlistAdapter.insertItem(0);
+                activity.currentPlaylist.addRadioStationTo(_station, dialog.whereToAdd);
+                activity.playlistAdapter.insertItem(dialog.whereToAdd);
                 dialog.dialog.dismiss();
             }
         });

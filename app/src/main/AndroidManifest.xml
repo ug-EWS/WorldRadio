@@ -17,7 +17,7 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.WorldRadio"
-        tools:targetApi="31"
+        tools:targetApi="34"
         android:usesCleartextTraffic="true">
         <activity
             android:name=".MainActivity"
