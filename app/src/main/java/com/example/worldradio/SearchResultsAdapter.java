@@ -14,13 +14,13 @@ import com.bumptech.glide.Glide;
 class SearchResultsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     RadioStationDialog dialog;
     MainActivity activity;
-    Playlist playlist;
+    Playlist resultPlaylist;
 
     SearchResultsAdapter(RadioStationDialog _dialog) {
         super();
         dialog = _dialog;
         activity = dialog.activity;
-        playlist = dialog.resultPlaylist;
+        resultPlaylist = dialog.resultPlaylist;
     }
 
     @NonNull
@@ -41,7 +41,7 @@ class SearchResultsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
         ImageView options = itemView.findViewById(R.id.radioAddTo);
 
         setItemOnClickListener(itemView, pos);
-        RadioStation station = dialog.resultPlaylist.getRadioStationAt(pos);
+        RadioStation station = resultPlaylist.getRadioStationAt(pos);
         title.setText(station.title);
         Glide.with(activity).load(station.faviconUrl).into(thumbnail);
         options.setVisibility(View.GONE);
@@ -50,12 +50,12 @@ class SearchResultsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 
     @Override
     public int getItemCount() {
-        return dialog.resultPlaylist.getLength();
+        return resultPlaylist.getLength();
     }
 
     private void setItemOnClickListener(View v, int position) {
         v.setOnClickListener(view -> {
-            RadioStation _station = dialog.resultPlaylist.getRadioStationAt(position);
+            RadioStation _station = resultPlaylist.getRadioStationAt(position);
             if (activity.currentPlaylist.contains(_station)) {
                 activity.showMessage("Bu radyo kanalı zaten eklenmiş.");
             } else {

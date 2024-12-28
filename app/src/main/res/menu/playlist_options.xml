@@ -12,6 +12,11 @@
     </group>
     <group >
         <item
+            android:id="@+id/sort"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:title="Kanalları sırala" />
+        <item
             android:id="@+id/edit"
             android:title="@string/edit" />
         <item

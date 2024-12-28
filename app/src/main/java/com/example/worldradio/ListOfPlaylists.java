@@ -2,6 +2,7 @@ package com.example.worldradio;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 
 public class ListOfPlaylists {
     ArrayList<Playlist> playlists;
@@ -60,6 +61,11 @@ public class ListOfPlaylists {
         playlists.remove(index);
     }
 
+    public void removePlaylists(ArrayList<Integer> indexes) {
+        indexes.sort(Comparator.reverseOrder());
+        for (Integer i : indexes) playlists.remove((int) i);
+    }
+
     public void movePlaylistDep(int from, int to) {
         if (from == to) return;
         if (from < to) to--;
@@ -86,5 +92,9 @@ public class ListOfPlaylists {
         if (cut) fromPlaylist.removeRadioStation(video);
         Playlist toPlaylist = playlists.get(to);
         toPlaylist.addRadioStation(videoToMove);
+    }
+
+    public boolean isEmpty() {
+        return playlists.isEmpty();
     }
 }

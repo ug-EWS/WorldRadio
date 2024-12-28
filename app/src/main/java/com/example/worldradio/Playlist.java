@@ -3,6 +3,7 @@ package com.example.worldradio;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 
 public class Playlist {
@@ -70,6 +71,11 @@ public class Playlist {
 
     public void removeRadioStation(int index) {
         radioStations.remove(index);
+    }
+
+    public void removeRadioStations(ArrayList<Integer> indexes) {
+        indexes.sort(Comparator.reverseOrder());
+        for (Integer i : indexes) radioStations.remove((int) i);
     }
 
     public void moveVideoDep(int from, int to) {

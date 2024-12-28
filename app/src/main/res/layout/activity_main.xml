@@ -120,9 +120,40 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
+                    android:singleLine="true"
                     android:text="@string/app_name"
                     android:textColor="@color/white"
                     android:textSize="16sp" />
+
+                <ImageView
+                    android:id="@+id/selectAllButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/ripple_on_dark_grey"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:padding="16dp"
+                    app:srcCompat="@drawable/baseline_select_all_24" />
+
+                <ImageView
+                    android:id="@+id/removeButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/ripple_on_dark_grey"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:padding="16dp"
+                    app:srcCompat="@drawable/baseline_delete_forever_24" />
+
+                <ImageView
+                    android:id="@+id/addToPlaylistButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/ripple_on_dark_grey"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:padding="16dp"
+                    app:srcCompat="@drawable/baseline_playlist_add_24" />
 
                 <ImageView
                     android:id="@+id/options"
@@ -130,9 +161,9 @@
                     android:layout_height="wrap_content"
                     android:background="@drawable/ripple_on_dark_grey"
                     android:clickable="true"
+                    android:focusable="true"
                     android:padding="16dp"
-                    app:srcCompat="@drawable/baseline_more_vert_24"
-                    tools:srcCompat="@drawable/baseline_more_vert_24" />
+                    app:srcCompat="@drawable/baseline_more_vert_24" />
 
                 <ImageView
                     android:id="@+id/settings"
@@ -141,8 +172,7 @@
                     android:background="@drawable/ripple_on_dark_grey"
                     android:clickable="true"
                     android:padding="16dp"
-                    app:srcCompat="@drawable/baseline_settings_24"
-                    tools:srcCompat="@drawable/baseline_settings_24" />
+                    app:srcCompat="@drawable/baseline_settings_24" />
 
             </LinearLayout>
 
@@ -158,6 +188,7 @@
                     android:layout_height="match_parent"
                     android:clipToPadding="false"
                     android:paddingBottom="84dp"
+                    android:scrollbarStyle="outsideOverlay"
                     android:scrollbars="vertical">
 
                 </androidx.recyclerview.widget.RecyclerView>
@@ -168,6 +199,7 @@
                     android:layout_height="match_parent"
                     android:clipToPadding="false"
                     android:paddingBottom="84dp"
+                    android:scrollbarStyle="outsideOverlay"
                     android:scrollbars="vertical">
 
                 </androidx.recyclerview.widget.RecyclerView>

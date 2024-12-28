@@ -4,6 +4,7 @@ import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.CheckBox;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -12,6 +13,8 @@ import androidx.appcompat.widget.PopupMenu;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+
+import java.util.ArrayList;
 
 class PlaylistAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> implements ItemMoveCallback.ItemTouchHelperContract {
     MainActivity activity;
@@ -37,8 +40,10 @@ class PlaylistAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> impl
         ImageView thumbnail = itemView.findViewById(R.id.videoThumbnail);
         TextView title = itemView.findViewById(R.id.videoTitle);
         ImageView options = itemView.findViewById(R.id.radioAddTo);
+        CheckBox checkBox = itemView.findViewById(R.id.checkBox);
 
         setItemOnClickListener(itemView, pos);
+        setItemOnLongClickListener(itemView, pos);
 
         itemView.setBackgroundResource(activity.currentPlaylistIndex == activity.playingPlaylistIndex && activity.playingRadioStationIndex == pos
                 ? R.drawable.list_item_playing
@@ -49,6 +54,10 @@ class PlaylistAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> impl
         title.setTextColor(activity.currentPlaylistIndex == activity.playingPlaylistIndex && activity.playingRadioStationIndex == pos ? Color.GREEN : Color.WHITE);
         if (thisVideo.faviconUrl.isEmpty()) thumbnail.setImageResource(R.drawable.baseline_radio_24);
         else Glide.with(activity).load(thisVideo.faviconUrl).into(thumbnail);
+
+        options.setVisibility(activity.selectionMode || activity.listSortMode ? View.GONE : View.VISIBLE);
+        checkBox.setVisibility(activity.selectionMode ? View.VISIBLE : View.GONE);
+        checkBox.setChecked(activity.selectedItems.contains(position));
 
         PopupMenu popupMenu = activity.getRadioStationPopupMenu(options, pos);
         options.setOnClickListener(view -> popupMenu.show());
@@ -83,18 +92,48 @@ class PlaylistAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> impl
 
     private void setItemOnClickListener(View v, int position) {
         v.setOnClickListener(view -> {
-            if (activity.currentPlaylistIndex == activity.playingPlaylistIndex && position == activity.playingRadioStationIndex) {
-                if (activity.isPlaying) activity.exoPlayer.pause();
-                else activity.exoPlayer.play();
-                activity.onStateChange(!activity.isPlaying);
+            if (activity.selectionMode) {
+                if (activity.selectedItems.contains(position))
+                    activity.selectedItems.remove((Integer) position);
+                else activity.selectedItems.add(position);
+                if (activity.selectedItems.isEmpty()) {
+                    activity.setSelectionMode(false);
+                } else {
+                    notifyItemChanged(position);
+                    activity.updateToolbar();
+                }
+            } else {
+                if (activity.currentPlaylistIndex == activity.playingPlaylistIndex && position == activity.playingRadioStationIndex) {
+                    if (activity.isPlaying) activity.exoPlayer.pause();
+                    else activity.exoPlayer.play();
+                    activity.onStateChange(!activity.isPlaying);
+                } else activity.playRadioStation(position, true);
             }
-            else activity.playRadioStation(position, true);
         });
     }
 
-    private View.OnClickListener getButtonOnClickListener(int position) {
-        return view -> new ManagePlaylistsDialog(activity, activity.currentPlaylist.getRadioStationAt(position)).show();
+
+    private void setItemOnLongClickListener(View _view, int position) {
+        _view.setOnLongClickListener(view -> {
+            if (!(activity.selectionMode || activity.listSortMode)) {
+                activity.selectedItems = new ArrayList<>();
+                activity.selectedItems.add(position);
+                activity.setSelectionMode(true);
+            }
+            return true;
+        });
     }
+
+    @Override
+    public boolean isSwipeEnabled() {
+        return !activity.selectionMode;
+    }
+
+    @Override
+    public boolean isDragEnabled() {
+        return activity.listSortMode;
+    }
+
 
     @Override
     public void onRowMoved(int fromPosition, int toPosition) {
@@ -119,4 +158,10 @@ class PlaylistAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> impl
     @Override
     public void onRowClear(RecyclerView.ViewHolder viewHolder) {
     }
+
+    @Override
+    public void onSwipe(@NonNull RecyclerView.ViewHolder viewHolder, int i) {
+        activity.removeRadioStation(viewHolder.getAdapterPosition());
+    }
+
 }

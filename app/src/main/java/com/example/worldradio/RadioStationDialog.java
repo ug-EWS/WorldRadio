@@ -5,7 +5,6 @@ import static android.view.inputmethod.EditorInfo.IME_ACTION_GO;
 
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
