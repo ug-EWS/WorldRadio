@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name" translatable="false">WorldRadio</string>
 
     <!-- Settings menu -->
     <string name="about">Hakkında</string>
@@ -46,10 +45,57 @@
     <string name="dialog_button_ok">Tamam</string>
 
     <!-- Toast messages -->
-    <string name="copy_to_clipboard">Panoya kopyalandı</string>
-    <string name="station_already_added">Kanal zaten eklenmiş</string>
+    <string name="copy_to_clipboard">Panoya kopyalandı.</string>
+    <string name="station_already_added">Kanal zaten eklenmiş.</string>
+    <string name="import_success">Oynatma listesi eklendi.</string>
+    <string name="import_fail">Oynatma listesi içe aktarılamadı.</string>
 
+
+    <!-- No playlists/videos -->
     <string name="no_playlists">Oynatma listesi yok.\n\nBir oynatma listesi eklemek için\n\"+\" düğmesine basın.</string>
     <string name="no_videos">Oynatma listesi boş.\n\nBir kanal eklemek için \n\"+\" düğmesine basın.</string>
+
+    <!-- Misc -->
+    <string name="grant_permission">Depolama izni olmadan oynatma listeleri içe aktarılamaz.</string>
+    <string name="select_all">Tümünü seç</string>
+    <string name="add_to_playlist">Oynatma listesine ekle</string>
+    <string name="merge">Birleştir</string>
+    <string name="sort_playlists">Oynatma listelerini sırala</string>
+    <string name="sort_videos">Kanalları sırala</string>
+    <string name="multi_choose">%d öge seçildi</string>
+    <string name="multi_remove_title">Birden çok öge sil</string>
+    <string name="multi_remove_prompt">%d öge silinsin mi?</string>
+    <string name="removed">Silindi</string>
+    <string name="merge_title">Birleştir</string>
+    <string name="merge_message">%d liste birleştirilsin mi?</string>
+    <string name="dialog_button_merge">Birleştir</string>
+    <string name="merge_success">\"%s\" adlı listede birleştirildi.</string>
+    <string name="choose_more_than_one">Lütfen en az iki liste seçin.</string>
+    <string name="auto_shut_down_title">Otomatik kapanma</string>
+    <string name="after_minutes">%d dakika sonra</string>
+    <string name="dialog_button_start">Başlat</string>
+    <string name="moved">Taşındı.</string>
+    <string name="copied">Kopyalandı.</string>
+    <string name="no_playlist_found">Bu kanalın bulunmadığı bir oynatma listesi yok.</string>
+    <string name="previous">Önceki</string>
+    <string name="pause">Duraklat</string>
+    <string name="play">Çal</string>
+    <string name="next">Sonraki</string>
+    <string name="forward">İleri atla</string>
+    <string name="stop">Durdur</string>
+    <string name="already_added">Bu kanal zaten eklenmiş.</string>
+    <string name="auto_shut_down">Otomatik kapanma</string>
+    <string name="auto_shut_down_disable">İptal et</string>
+    <string name="auto_shut_down_10">10 dakika sonra</string>
+    <string name="auto_shut_down_30">30 dakika sonra</string>
+    <string name="auto_shut_down_60">60 dakika sonra</string>
+    <string name="auto_shut_down_custom">Özel</string>
+    <string name="timer_disabled">Zamanlayıcı devre dışı bırakıldı.</string>
+    <string name="timer_set">Video %d dakika sonra kapanacak.</string>
+    <string name="copy">Kopyala</string>
+    <string name="move">Taşı</string>
+    <string name="loading">Yükleniyor…</string>
+    <string name="no_results_found">Sonuç bulunamadı.</string>
+    <string name="station_info">Kanal bilgileri</string>
 
 </resources>

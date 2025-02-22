@@ -1,11 +1,16 @@
 package com.example.worldradio;
 
+import android.content.Context;
 import android.graphics.Color;
+import android.text.SpannableString;
+import android.text.Spanned;
+import android.text.style.ForegroundColorSpan;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -36,26 +41,34 @@ class PlaylistAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> impl
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
         View itemView = holder.itemView;
         int pos = holder.getAdapterPosition();
+        boolean playing = activity.currentPlaylistIndex == activity.playingPlaylistIndex && activity.playingRadioStationIndex == pos;
 
+        LinearLayout layout = itemView.findViewById(R.id.layout);
         ImageView thumbnail = itemView.findViewById(R.id.videoThumbnail);
         TextView title = itemView.findViewById(R.id.videoTitle);
         ImageView options = itemView.findViewById(R.id.radioAddTo);
         CheckBox checkBox = itemView.findViewById(R.id.checkBox);
 
-        setItemOnClickListener(itemView, pos);
-        setItemOnLongClickListener(itemView, pos);
+        setItemOnClickListener(layout, pos);
+        setItemOnLongClickListener(layout, pos);
 
-        itemView.setBackgroundResource(activity.currentPlaylistIndex == activity.playingPlaylistIndex && activity.playingRadioStationIndex == pos
-                ? R.drawable.list_item_playing
-                : R.drawable.list_item);
+        layout.setBackgroundResource(playing ? R.drawable.list_item_playing : R.drawable.list_item);
+        title.setTextColor(activity.getColor(playing ? R.color.green2 : R.color.grey1));
 
         RadioStation thisVideo = activity.currentPlaylist.getRadioStationAt(pos);
-        title.setText(thisVideo.title);
-        title.setTextColor(activity.currentPlaylistIndex == activity.playingPlaylistIndex && activity.playingRadioStationIndex == pos ? Color.GREEN : Color.WHITE);
+        if (activity.searchMode && activity.foundItemIndex == pos) {
+            SpannableString spannableString = new SpannableString(thisVideo.title);
+            spannableString.setSpan(new ForegroundColorSpan(activity.getColor(R.color.yellow)),
+                    activity.foundAtStart,
+                    activity.foundAtEnd,
+                    Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
+            title.setText(spannableString, TextView.BufferType.SPANNABLE);
+        } else title.setText(thisVideo.title);
+
         if (thisVideo.faviconUrl.isEmpty()) thumbnail.setImageResource(R.drawable.baseline_radio_24);
         else Glide.with(activity).load(thisVideo.faviconUrl).into(thumbnail);
 
-        options.setVisibility(activity.selectionMode || activity.listSortMode ? View.GONE : View.VISIBLE);
+        options.setVisibility(activity.selectionMode || activity.listSortMode || activity.searchMode ? View.GONE : View.VISIBLE);
         checkBox.setVisibility(activity.selectionMode ? View.VISIBLE : View.GONE);
         checkBox.setChecked(activity.selectedItems.contains(position));
 
@@ -102,20 +115,21 @@ class PlaylistAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> impl
                     notifyItemChanged(position);
                     activity.updateToolbar();
                 }
-            } else {
+            } else if (!activity.listSortMode) {
                 if (activity.currentPlaylistIndex == activity.playingPlaylistIndex && position == activity.playingRadioStationIndex) {
                     if (activity.isPlaying) activity.exoPlayer.pause();
                     else activity.exoPlayer.play();
                     activity.onStateChange(!activity.isPlaying);
-                } else activity.playRadioStation(position, true);
+                } else activity.playRadioStation(position, true, true);
             }
+            if (activity.searchMode) activity.setSearchMode(false);
         });
     }
 
 
     private void setItemOnLongClickListener(View _view, int position) {
         _view.setOnLongClickListener(view -> {
-            if (!(activity.selectionMode || activity.listSortMode)) {
+            if (!(activity.selectionMode || activity.listSortMode || activity.searchMode)) {
                 activity.selectedItems = new ArrayList<>();
                 activity.selectedItems.add(position);
                 activity.setSelectionMode(true);
@@ -152,7 +166,6 @@ class PlaylistAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> impl
 
     @Override
     public void onRowSelected(RecyclerView.ViewHolder viewHolder) {
-        activity.vibrator.vibrate(50);
     }
 
     @Override
@@ -164,4 +177,8 @@ class PlaylistAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> impl
         activity.removeRadioStation(viewHolder.getAdapterPosition());
     }
 
+    @Override
+    public Context getContext() {
+        return activity;
+    }
 }

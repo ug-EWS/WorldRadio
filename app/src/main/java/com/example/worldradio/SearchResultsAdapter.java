@@ -1,5 +1,8 @@
 package com.example.worldradio;
 
+import android.content.Intent;
+import android.net.Uri;
+import android.os.Environment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,6 +13,9 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+
+import java.io.File;
+import java.util.Objects;
 
 class SearchResultsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     RadioStationDialog dialog;
@@ -43,7 +49,8 @@ class SearchResultsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
         setItemOnClickListener(itemView, pos);
         RadioStation station = resultPlaylist.getRadioStationAt(pos);
         title.setText(station.title);
-        Glide.with(activity).load(station.faviconUrl).into(thumbnail);
+        if (station.faviconUrl.isEmpty()) thumbnail.setImageResource(R.drawable.baseline_radio_24);
+        else Glide.with(activity).load(station.faviconUrl).into(thumbnail);
         options.setVisibility(View.GONE);
         options.setOnClickListener(null);
     }
@@ -57,10 +64,11 @@ class SearchResultsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
         v.setOnClickListener(view -> {
             RadioStation _station = resultPlaylist.getRadioStationAt(position);
             if (activity.currentPlaylist.contains(_station)) {
-                activity.showMessage("Bu radyo kanalı zaten eklenmiş.");
+                activity.showMessage(R.string.already_added);
             } else {
                 activity.currentPlaylist.addRadioStationTo(_station, dialog.whereToAdd);
                 activity.playlistAdapter.insertItem(dialog.whereToAdd);
+                activity.updateNoItemsView();
                 dialog.dialog.dismiss();
             }
         });

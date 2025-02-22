@@ -4,27 +4,52 @@
     <item
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:title="Otomatik kapanma">
+        android:title="@string/auto_shut_down">
         <menu>
             <group
-                android:checkableBehavior="single"
+                android:checkableBehavior="none"
                 android:enabled="true">
                 <item
                     android:id="@+id/autoDisabled"
-                    android:title="Devre dışı" />
+                    android:enabled="false"
+                    android:title="@string/auto_shut_down_disable" />
                 <item
                     android:id="@+id/auto10Minutes"
-                    android:title="10 dakika sonra" />
+                    android:title="@string/auto_shut_down_10" />
                 <item
                     android:id="@+id/auto30Minutes"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:title="30 dakika sonra" />
+                    android:title="@string/auto_shut_down_30" />
                 <item
                     android:id="@+id/auto1Hour"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:title="60 dakika sonra" />
+                    android:title="@string/auto_shut_down_60" />
+                <item
+                    android:id="@+id/custom"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:title="@string/auto_shut_down_custom" />
+            </group>
+        </menu>
+    </item>
+    <item
+        android:id="@+id/theme"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:title="Tema">
+        <menu>
+            <group android:checkableBehavior="single">
+                <item
+                    android:id="@+id/lightTheme"
+                    android:title="Açık" />
+                <item
+                    android:id="@+id/darkTheme"
+                    android:title="Koyu" />
+                <item
+                    android:id="@+id/autoTheme"
+                    android:title="Otomatik" />
             </group>
         </menu>
     </item>

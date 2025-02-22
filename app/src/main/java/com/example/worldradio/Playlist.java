@@ -45,16 +45,17 @@ public class Playlist {
         return this;
     }
 
-    public void addRadioStation(RadioStation _video) {
-        if (radioStations.isEmpty()) radioStations.add(_video); else radioStations.add(0, _video);
+    public void addRadioStation(RadioStation _station) {
+        addRadioStationTo(_station, 0);
     }
 
     public void addRadioStationToEnd(RadioStation _station) {
         radioStations.add(_station);
     }
 
-    public void addRadioStationTo(RadioStation _video, int to) {
-        radioStations.add(to, _video);
+    public void addRadioStationTo(RadioStation _station, int to) {
+        if (to > radioStations.size()) to = 0;
+        radioStations.add(to, _station);
     }
 
     public boolean contains(RadioStation _station) {

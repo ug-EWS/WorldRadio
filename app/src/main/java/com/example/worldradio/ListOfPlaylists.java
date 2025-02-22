@@ -1,5 +1,7 @@
 package com.example.worldradio;
 
+import androidx.annotation.NonNull;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -15,7 +17,7 @@ public class ListOfPlaylists {
         playlists = new ArrayList<>();
         ArrayList<String> list = Json.toList(_json);
 
-        for (String i : list){
+        for (String i : list) {
             playlists.add(new Playlist().fromJson(i));
         }
 
@@ -23,18 +25,16 @@ public class ListOfPlaylists {
     }
 
     public void addPlaylist(String title) {
-        Playlist p = new Playlist(title);
-        if (playlists.isEmpty()) playlists.add(p); else playlists.add(0, p);
+        addPlaylist(new Playlist(title));
     }
 
     public void addPlaylist(Playlist p) {
-        if (playlists.isEmpty()) playlists.add(p); else playlists.add(0, p);
+        addPlaylistTo(p, 0);
     }
 
     public void addPlaylistTo(Playlist p, int to) {
-        if (playlists.isEmpty()) playlists.add(p);
-        else if (playlists.size() < to) playlists.add(0, p);
-        else playlists.add(to, p);
+        if (playlists.size() < to) to = 0;
+        playlists.add(to, p);
     }
 
     public Playlist getPlaylistAt(int index) {
@@ -61,7 +61,7 @@ public class ListOfPlaylists {
         playlists.remove(index);
     }
 
-    public void removePlaylists(ArrayList<Integer> indexes) {
+    public void removePlaylists(@NonNull ArrayList<Integer> indexes) {
         indexes.sort(Comparator.reverseOrder());
         for (Integer i : indexes) playlists.remove((int) i);
     }
@@ -86,12 +86,19 @@ public class ListOfPlaylists {
         }
     }
 
-    public void moveVideo(int from, int video, int to, boolean cut) {
-        Playlist fromPlaylist = playlists.get(from);
-        RadioStation videoToMove = fromPlaylist.getRadioStationAt(video);
-        if (cut) fromPlaylist.removeRadioStation(video);
-        Playlist toPlaylist = playlists.get(to);
-        toPlaylist.addRadioStation(videoToMove);
+    public String mergePlaylists(@NonNull ArrayList<Integer> indexes) {
+        indexes.sort(Comparator.naturalOrder());
+        Playlist basePlaylist = playlists.get(indexes.get(0));
+        for (int i = indexes.size() - 1; i > 0; i--) {
+            Playlist playlist = playlists.get(indexes.get(i));
+            for (int j = playlist.getLength() - 1; j >= 0; j--) {
+                RadioStation station = playlist.getRadioStationAt(j);
+                if (!basePlaylist.contains(station))
+                    basePlaylist.addRadioStation(station);
+            }
+            removePlaylist(indexes.get(i));
+        }
+        return basePlaylist.title;
     }
 
     public boolean isEmpty() {

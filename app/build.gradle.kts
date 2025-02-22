@@ -8,12 +8,12 @@ android {
 
     defaultConfig {
         applicationId = "com.example.worldradio"
-        minSdk = 24
-        targetSdk = 34
+        minSdk = 26
         versionCode = 1
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        targetSdk = 35
     }
 
     buildTypes {
@@ -42,6 +42,7 @@ dependencies {
     implementation(libs.radiobrowser4j)
     implementation(libs.androidx.media3.exoplayer)
     implementation(libs.androidx.media3.exoplayer.hls)
+    implementation(libs.androidx.media3.session)
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)

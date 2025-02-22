@@ -4,16 +4,22 @@
     xmlns:tools="http://schemas.android.com/tools"
 
 
+    android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/back"
-    android:fitsSystemWindows="true">
+    android:background="@drawable/back">
 
     <LinearLayout
         android:id="@+id/layoutMain"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical">
+
+        <View
+            android:id="@+id/statusBarBackground"
+            android:layout_width="wrap_content"
+            android:layout_height="8dp"
+            android:background="@color/grey2" />
 
         <LinearLayout
             android:id="@+id/musicController"
@@ -26,7 +32,7 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
-                android:background="@color/very_dark_grey"
+                android:background="@color/grey3"
                 android:orientation="horizontal">
 
             </LinearLayout>
@@ -55,7 +61,8 @@
                     android:marqueeRepeatLimit="marquee_forever"
                     android:scrollHorizontally="true"
                     android:singleLine="true"
-                    android:text="TextView" />
+                    android:text="TextView"
+                    android:textColor="@color/grey4" />
 
                 <ImageView
                     android:id="@+id/infoButton"
@@ -86,7 +93,7 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
-                android:background="@color/very_dark_grey"
+                android:background="@color/grey3"
                 android:orientation="horizontal"></LinearLayout>
 
         </LinearLayout>
@@ -99,10 +106,61 @@
             android:orientation="vertical">
 
             <LinearLayout
+                android:id="@+id/searchBar"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@color/grey2"
+                android:gravity="center_vertical"
+                android:minHeight="52dp"
+                android:orientation="horizontal">
+
+                <ImageView
+                    android:id="@+id/cancelSearchButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/ripple_on_dark_grey"
+                    android:padding="16dp"
+                    app:srcCompat="@drawable/baseline_arrow_back_24" />
+
+                <EditText
+                    android:id="@+id/searchEditText"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:ems="10"
+                    android:hint="Arayın..."
+                    android:inputType="text"
+                    android:textColor="@color/grey1"
+                    android:textSize="16sp" />
+
+                <ImageView
+                    android:id="@+id/findUpButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/ripple_on_dark_grey"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:padding="16dp"
+                    app:srcCompat="@drawable/baseline_arrow_upward_24" />
+
+                <ImageView
+                    android:id="@+id/findDownButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/ripple_on_dark_grey"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:padding="16dp"
+                    android:rotation="180"
+                    app:srcCompat="@drawable/baseline_arrow_upward_24" />
+
+            </LinearLayout>
+
+            <LinearLayout
                 android:id="@+id/toolbar"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="@color/dark_grey"
+                android:background="@color/grey2"
                 android:gravity="center_vertical"
                 android:minHeight="52dp"
                 android:orientation="horizontal">
@@ -122,8 +180,18 @@
                     android:layout_weight="1"
                     android:singleLine="true"
                     android:text="@string/app_name"
-                    android:textColor="@color/white"
+                    android:textColor="@color/grey1"
                     android:textSize="16sp" />
+
+                <ImageView
+                    android:id="@+id/search"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/ripple_on_dark_grey"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:padding="16dp"
+                    app:srcCompat="@drawable/baseline_search_24" />
 
                 <ImageView
                     android:id="@+id/selectAllButton"
@@ -154,6 +222,16 @@
                     android:focusable="true"
                     android:padding="16dp"
                     app:srcCompat="@drawable/baseline_playlist_add_24" />
+
+                <ImageView
+                    android:id="@+id/merge"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/ripple_on_dark_grey"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:padding="16dp"
+                    app:srcCompat="@drawable/baseline_call_merge_24" />
 
                 <ImageView
                     android:id="@+id/options"
@@ -187,7 +265,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:clipToPadding="false"
-                    android:paddingBottom="84dp"
+                    android:paddingBottom="140dp"
                     android:scrollbarStyle="outsideOverlay"
                     android:scrollbars="vertical">
 
@@ -198,7 +276,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:clipToPadding="false"
-                    android:paddingBottom="84dp"
+                    android:paddingBottom="140dp"
                     android:scrollbarStyle="outsideOverlay"
                     android:scrollbars="vertical">
 

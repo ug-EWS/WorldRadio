@@ -8,33 +8,33 @@ import android.app.Service;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.ServiceInfo;
+import android.graphics.Bitmap;
 import android.graphics.drawable.Icon;
 import android.media.MediaMetadata;
 import android.media.session.MediaSession;
+import android.media.session.PlaybackState;
 import android.net.Uri;
 import android.os.Binder;
 import android.os.Build;
 import android.os.Handler;
 import android.os.IBinder;
-import android.widget.RemoteViews;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.OptIn;
-import androidx.core.app.NotificationCompat;
-import androidx.media3.common.C;
 import androidx.media3.common.MediaItem;
 import androidx.media3.common.Player;
 import androidx.media3.common.util.UnstableApi;
-import androidx.media3.datasource.DataSource;
-import androidx.media3.datasource.DefaultDataSourceFactory;
 import androidx.media3.exoplayer.ExoPlayer;
-import androidx.media3.exoplayer.hls.HlsMediaSource;
+
+import com.bumptech.glide.Glide;
+
+import java.util.Calendar;
 
 public class PlaybackService extends Service {
     public class ServiceBinder extends Binder {
         PlaybackService getService() {
-           return PlaybackService.this;
+            return PlaybackService.this;
         }
     }
     @Nullable
@@ -45,8 +45,9 @@ public class PlaybackService extends Service {
     private final IBinder binder = new ServiceBinder();
 
     private NotificationManager notificationManager;
-    private RemoteViews remoteViews;
     private MediaSession mediaSession;
+    private MediaMetadata.Builder mediaMetadata;
+    private PlaybackState.Builder playbackState;
     private Handler handler;
 
     private SharedPreferences sp;
@@ -56,10 +57,9 @@ public class PlaybackService extends Service {
 
     private Playlist playlist;
     private int currentRadioStationIndex;
-    private int autoShutDown;
-    private int[] autoShutDownMillis = {0, 10000, 1800000, 3600000};
+    private boolean timerSet;
+    private long timerMs;
     private boolean isPlaying = false;
-    private String title = "WorldRadio";
 
 
     private final String ACTION_START_SERVICE = "com.opl.ACTION_START_SERVICE";
@@ -68,7 +68,6 @@ public class PlaybackService extends Service {
     private final String ACTION_FORWARD = "com.opl.ACTION_FORWARD";
     private final String ACTION_PREV = "com.opl.ACTION_PREV";
     private final String ACTION_NEXT = "com.opl.ACTION_NEXT";
-    private final String ACTION_CONTINUE = "com.opl.ACTION_CONTINUE";
 
     private final int SERVICE_NOTIFICATION = 101;
     private final int TIMEOUT_NOTIFICATION = 102;
@@ -76,33 +75,113 @@ public class PlaybackService extends Service {
     @Override
     public void onCreate() {
         notificationManager = (NotificationManager)getSystemService(NOTIFICATION_SERVICE);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            NotificationChannel channel = new NotificationChannel("def", "Playback", NotificationManager.IMPORTANCE_LOW);
-            channel.enableVibration(false);
-            channel.enableLights(false);
-            channel.setSound(null, null);
-            notificationManager.createNotificationChannel(channel);
-        }
+        NotificationChannel channel = new NotificationChannel("def", "Playback", NotificationManager.IMPORTANCE_LOW);
+        channel.enableVibration(false);
+        channel.enableLights(false);
+        channel.setSound(null, null);
+        notificationManager.createNotificationChannel(channel);
+
+        exoPlayer = new ExoPlayer.Builder(this).build();
+        exoPlayer.addListener(new Player.Listener() {
+            @Override
+            public void onIsPlayingChanged(boolean _isPlaying) {
+                isPlaying = _isPlaying;
+                playbackState.setState(isPlaying ? PlaybackState.STATE_PLAYING : PlaybackState.STATE_PAUSED, PlaybackState.PLAYBACK_POSITION_UNKNOWN, 1);
+                mediaSession.setPlaybackState(playbackState.build());
+                startForegroundService();
+                spe.putBoolean("playing", isPlaying).commit();
+                Player.Listener.super.onIsPlayingChanged(isPlaying);
+            }
+
+            @Override
+            public void onPlaybackStateChanged(int _playbackState) {
+                if (_playbackState == PlaybackState.STATE_BUFFERING) {
+                    playbackState.setState(PlaybackState.STATE_BUFFERING, PlaybackState.PLAYBACK_POSITION_UNKNOWN, 1);
+                    mediaSession.setPlaybackState(playbackState.build());
+                    startForegroundService();
+                }
+                Player.Listener.super.onPlaybackStateChanged(_playbackState);
+            }
+        });
+
+        playbackState = new PlaybackState.Builder()
+                .setActions(PlaybackState.ACTION_PLAY_PAUSE
+                        |PlaybackState.ACTION_SKIP_TO_PREVIOUS
+                        |PlaybackState.ACTION_SKIP_TO_NEXT
+                        |PlaybackState.ACTION_STOP);
+
         mediaSession = new MediaSession(this, "WorldRadio");
-        mediaSession.setMetadata(new MediaMetadata.Builder().putLong(MediaMetadata.METADATA_KEY_DURATION, -1L).build());
+        mediaSession.setPlaybackState(playbackState.build());
+        mediaSession.setCallback(new MediaSession.Callback() {
+            @Override
+            public void onPlay() {
+                exoPlayer.play();
+                onStateChange(true);
+                super.onPlay();
+            }
+
+            @Override
+            public void onPause() {
+                exoPlayer.pause();
+                onStateChange(false);
+                super.onPause();
+            }
+
+            @Override
+            public void onSkipToNext() {
+                playNext();
+                super.onSkipToNext();
+            }
+
+            @Override
+            public void onSkipToPrevious() {
+                playPrevious();
+                super.onSkipToPrevious();
+            }
+
+            @Override
+            public void onStop() {
+                super.onStop();
+                stopSelf();
+            }
+        });
+
+        mediaMetadata = new MediaMetadata.Builder();
+        mediaMetadata = new MediaMetadata.Builder().putLong(MediaMetadata.METADATA_KEY_DURATION, -1L);
+        mediaSession.setMetadata(mediaMetadata.build());
+
         sp = getSharedPreferences("WorldRadio", MODE_PRIVATE);
         spe = sp.edit();
         handler = new Handler(getMainLooper());
     }
 
     private void startForegroundService() {
-        if (Build.VERSION.SDK_INT >= 29) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             startForeground(SERVICE_NOTIFICATION, getNotification(), ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK);
         } else {
             startForeground(SERVICE_NOTIFICATION, getNotification());
         }
     }
 
-    private void startTimer(boolean delayed) {
-        handler.postDelayed(() -> {
-            notificationManager.notify(102, getTimeoutNotification());
-            handler.postDelayed(this::stopSelf, 10000);
-        }, delayed ? 10000 : autoShutDownMillis[autoShutDown]);
+    private void setTimer() {
+        if (timerSet) {
+            long afterMillis = timerMs - Calendar.getInstance().getTimeInMillis();
+            if (afterMillis > 0) {
+                handler = new Handler(getMainLooper());
+                handler.postDelayed(() -> {
+                    exoPlayer.pause();
+                    timerSet = false;
+                    spe.putBoolean("timerSet", false);
+                }, afterMillis);
+            } else {
+                timerSet = false;
+                spe.putBoolean("timerSet", false);
+                setTimer();
+            }
+        } else if (handler != null) {
+            handler.removeCallbacksAndMessages(null);
+            handler = null;
+        }
     }
 
     @Override
@@ -114,10 +193,11 @@ public class PlaybackService extends Service {
                     case ACTION_START_SERVICE:
                         playlist = new Playlist().fromJson(intent.getStringExtra("playlist"));
                         currentRadioStationIndex = sp.getInt("currentVideoIndex", 0);
-                        autoShutDown = sp.getInt("autoShutDown", 0);
+                        timerSet = sp.getBoolean("timerSet", false);
+                        timerMs = sp.getLong("timerMs", 0);
                         spe.putBoolean("serviceRunning", true).commit();
                         initializePlayer();
-                        if (autoShutDown != 0) startTimer(false);
+                        setTimer();
                         break;
                     case ACTION_PLAY:
                         play();
@@ -135,11 +215,6 @@ public class PlaybackService extends Service {
                     case ACTION_NEXT:
                         playNext();
                         break;
-                    case ACTION_CONTINUE:
-                        handler.removeCallbacksAndMessages(null);
-                        startTimer(true);
-                        notificationManager.cancel(TIMEOUT_NOTIFICATION);
-                        break;
                     default:
                         break;
                 }
@@ -153,22 +228,44 @@ public class PlaybackService extends Service {
         exoPlayer.release();
         spe.putBoolean("serviceRunning", false).commit();
         notificationManager.cancel(SERVICE_NOTIFICATION);
-        notificationManager.cancel(TIMEOUT_NOTIFICATION);
-        handler.removeCallbacksAndMessages(null);
+        timerSet = false;
+        setTimer();
     }
 
     private Notification getNotification() {
         Notification notification;
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+
+        Bitmap bitmap = null;
+        try {
+            bitmap = Glide.with(this).asBitmap().load(playlist.getRadioStationAt(currentRadioStationIndex).faviconUrl).submit().get();
+            mediaMetadata.putBitmap(MediaMetadata.METADATA_KEY_ART, bitmap);
+            mediaSession.setMetadata(mediaMetadata.build());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             notification = new Notification.Builder(this, "def")
                     .setSmallIcon(R.drawable.baseline_radio_24)
                     .setTicker(getString(R.string.app_name))  // the status text
                     .setContentTitle(playlist.getRadioStationAt(currentRadioStationIndex).title)  // the label of the entry
                     .setContentText(playlist.title)
-                    .setWhen(System.currentTimeMillis())
+                    .setShowWhen(false)
                     .setContentIntent(getPendingIntent())
                     .setDeleteIntent(getIntentFor(ACTION_CLOSE))
-                    .setColor(getResources().getColor(R.color.very_dark_grey, getTheme()))
+                    .setColorized(true)
+                    .setStyle(new Notification.DecoratedMediaCustomViewStyle()
+                            .setMediaSession(mediaSession.getSessionToken()))
+                    .setAutoCancel(false)
+                    .build();
+        } else {
+            notification = new Notification.Builder(this, "def")
+                    .setSmallIcon(R.drawable.baseline_radio_24)
+                    .setTicker(getString(R.string.app_name))  // the status text
+                    .setContentTitle(playlist.getRadioStationAt(currentRadioStationIndex).title)  // the label of the entry
+                    .setContentText(playlist.title)
+                    .setShowWhen(false)
+                    .setContentIntent(getPendingIntent())
+                    .setDeleteIntent(getIntentFor(ACTION_CLOSE))
                     .setColorized(true)
                     .setStyle(new Notification.DecoratedMediaCustomViewStyle()
                             .setShowActionsInCompactView(0, 1, 2)
@@ -193,68 +290,11 @@ public class PlaybackService extends Service {
                             Icon.createWithResource(this, R.drawable.baseline_stop_24),
                             "Durdur",
                             getIntentFor(ACTION_CLOSE)).build())
-                    .setChannelId("def")
                     .setAutoCancel(false)
-                    .setCustomContentView(getRemoteViews())
-                    .build();
-        } else {
-            notification = new NotificationCompat.Builder(this, "def")
-                    .setSmallIcon(R.drawable.baseline_radio_24)
-                    .setTicker(getString(R.string.app_name))  // the status text
-                    .setContentTitle(playlist.getRadioStationAt(currentRadioStationIndex).title)  // the label of the entry
-                    .setContentText(playlist.title)
-                    .setWhen(System.currentTimeMillis())
-                    .setContentIntent(getPendingIntent())
-                    .setDeleteIntent(getIntentFor(ACTION_CLOSE))
-                    .setColor(getResources().getColor(R.color.very_dark_grey, getTheme()))
-                    .setColorized(true)
-                    .setStyle(new NotificationCompat.DecoratedCustomViewStyle())
-                    .addAction(new NotificationCompat.Action.Builder(
-                            R.drawable.baseline_skip_previous_24,
-                            "Önceki",
-                            getIntentFor(ACTION_PREV)).build())
-                    .addAction(new NotificationCompat.Action.Builder(
-                            isPlaying ? R.drawable.baseline_pause_24 : R.drawable.baseline_play_arrow_24,
-                            isPlaying ? "Duraklat" : "Çal",
-                            getIntentFor(ACTION_PLAY)).build())
-                    .addAction(new NotificationCompat.Action.Builder(
-                            R.drawable.baseline_skip_next_24,
-                            "Sonraki",
-                            getIntentFor(ACTION_NEXT)).build())
-                    .addAction(new NotificationCompat.Action.Builder(
-                            R.drawable.baseline_fast_forward_24,
-                            "İleri atla",
-                            getIntentFor(ACTION_FORWARD)).build())
-                    .addAction(new NotificationCompat.Action.Builder(
-                            R.drawable.baseline_stop_24,
-                            "Durdur",
-                            getIntentFor(ACTION_CLOSE)).build())
-                    .setChannelId("def")
-                    .setAutoCancel(false)
+                    .setLargeIcon(bitmap)
                     .build();
         }
         return notification;
-    }
-
-    private @NonNull Notification getTimeoutNotification() {
-        return new NotificationCompat.Builder(this, "def")
-                .setSmallIcon(R.drawable.baseline_smart_display_24)
-                .setTicker(getString(R.string.app_name))
-                .setContentTitle(getString(R.string.app_name))
-                .setContentText("Oynatıcı otomatik olarak kapatılacak.")
-                .setWhen(System.currentTimeMillis())
-                .setStyle(new NotificationCompat.DecoratedCustomViewStyle())
-                .setAutoCancel(true)
-                .addAction(new NotificationCompat.Action.Builder(null, "Şimdi kapat", getIntentFor(ACTION_CLOSE)).build())
-                .addAction(new NotificationCompat.Action.Builder(null, "30 dakika daha çal", getIntentFor(ACTION_CONTINUE)).build())
-                .build();
-    }
-
-    private @NonNull RemoteViews getRemoteViews() {
-        RemoteViews views = new RemoteViews(getPackageName(), R.layout.playback_notification);
-        views.setImageViewResource(R.id.icon, R.drawable.baseline_radio_24);
-        views.setTextViewText(R.id.title, title);
-        return views;
     }
 
     private @NonNull PendingIntent getPendingIntent() {
@@ -278,9 +318,8 @@ public class PlaybackService extends Service {
         startForegroundService();
     }
 
-    private void play(){
+    private void play() {
         if (isPlaying) exoPlayer.pause(); else exoPlayer.play();
-        onStateChange(!isPlaying);
     }
 
     private void forward() {
@@ -301,20 +340,11 @@ public class PlaybackService extends Service {
     @OptIn(markerClass = UnstableApi.class)
     private void changeRadioStation() {
         RadioStation station = playlist.getRadioStationAt(currentRadioStationIndex);
-
-        if (exoPlayer != null) exoPlayer.release();
-        exoPlayer = new ExoPlayer.Builder(this).build();
-
         MediaItem mediaItem = new MediaItem.Builder().setUri(Uri.parse(station.url)).build();
-        DataSource.Factory dataSourceFactory = new DefaultDataSourceFactory(this, "exoplayer-codelab");
-        HlsMediaSource hlsMediaSource = new HlsMediaSource.Factory(dataSourceFactory).createMediaSource(mediaItem);
-        exoPlayer.setAudioAttributes(new androidx.media3.common.AudioAttributes.Builder().setContentType(C.AUDIO_CONTENT_TYPE_MUSIC).setUsage(C.USAGE_MEDIA).build(), true);
-        if (station.hls.equals("1")) exoPlayer.setMediaSource(hlsMediaSource);
-        else exoPlayer.setMediaItem(mediaItem);
+        exoPlayer.setMediaItem(mediaItem);
         exoPlayer.prepare();
         exoPlayer.play();
-        title = station.title;
-        onStateChange(true);
         spe.putInt("currentVideoIndex", currentRadioStationIndex).commit();
+        startForegroundService();
     }
 }

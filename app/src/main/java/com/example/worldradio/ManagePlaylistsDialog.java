@@ -16,6 +16,7 @@ class ManagePlaylistsDialog {
 
     ArrayList<CharSequence> items;
     ArrayList<Integer> originalIndexes;
+    ArrayList<Integer> forRadioStations;
     boolean[] contains;
     CharSequence[] itemsArr;
     int length;
@@ -45,15 +46,15 @@ class ManagePlaylistsDialog {
             contains[which] = isChecked;
         });
 
-        builder.setPositiveButton(R.string.dialog_button_add, (dialog1, which) -> {
-            for (int i = 0; i < length2; i++) {
-                Playlist playlist = listOfPlaylists.getPlaylistAt(originalIndexes.get(i));
-                if (contains[i]) {
-                    playlist.addRadioStation(station);
-                    if (i == activity.currentPlaylistIndex) activity.playlistAdapter.insertItem(0);
-                }
-            }
-            activity.showMessage("Eklendi");
+        builder.setPositiveButton(R.string.copy, (dialog1, which) -> {
+            copyRadioStation();
+            activity.showMessage(R.string.copied);
+        });
+
+        builder.setNeutralButton(R.string.move, (dialog1, which) -> {
+            copyRadioStation();
+            currentPlaylist.removeRadioStation(_forRadioStation);
+            activity.showMessage(R.string.moved);
         });
         dialog = builder.create();
     }
@@ -63,11 +64,15 @@ class ManagePlaylistsDialog {
 
         items = new ArrayList<>();
         originalIndexes = new ArrayList<>();
+        forRadioStations = _forRadioStations;
 
         length = activity.listOfPlaylists.getLength();
         for (int i = 0; i < length; i++) {
-            Playlist playlist = listOfPlaylists.getPlaylistAt(i);
-            items.add(playlist.title);
+            if (activity.currentPlaylistIndex != i) {
+                Playlist playlist = listOfPlaylists.getPlaylistAt(i);
+                items.add(playlist.title);
+                originalIndexes.add(i);
+            }
         }
 
         itemsArr = items.toArray(new CharSequence[0]);
@@ -77,16 +82,16 @@ class ManagePlaylistsDialog {
             contains[which] = isChecked;
         });
 
-        builder.setPositiveButton(R.string.dialog_button_add, (dialog1, which) -> {
-            for (int i = 0; i < length; i++) {
-                Playlist playlist = listOfPlaylists.getPlaylistAt(i);
-                if (contains[i]) {
-                    for (int j = _forRadioStations.size() - 1; j >= 0; j--) {
-                        playlist.addRadioStation(activity.currentPlaylist.getRadioStationAt(j));
-                    }
-                }
-            }
-            activity.showMessage("Eklendi");
+        builder.setPositiveButton(R.string.copy, (dialog1, which) -> {
+            copyRadioStations();
+            activity.showMessage(R.string.copied);
+            activity.setSelectionMode(false);
+        });
+
+        builder.setNeutralButton(R.string.move, (dialog1, which) -> {
+            copyRadioStations();
+            currentPlaylist.removeRadioStations(forRadioStations);
+            activity.showMessage(R.string.moved);
             activity.setSelectionMode(false);
         });
         dialog = builder.create();
@@ -98,11 +103,34 @@ class ManagePlaylistsDialog {
         currentPlaylist = activity.currentPlaylist;
 
         builder = new AlertDialog.Builder(activity, R.style.Theme_OnlinePlaylistsDialogDark);
-        builder.setTitle("Oynatma listesine ekle");
+        builder.setTitle(R.string.add_to_playlist);
         builder.setNegativeButton(R.string.dialog_button_cancel, null);
     }
 
+    private void copyRadioStation() {
+        for (int i = 0; i < length2; i++) {
+            Playlist playlist = listOfPlaylists.getPlaylistAt(originalIndexes.get(i));
+            if (contains[i]) {
+                playlist.addRadioStation(station);
+                if (i == activity.currentPlaylistIndex) activity.playlistAdapter.insertItem(0);
+            }
+        }
+    }
+
+    private void copyRadioStations() {
+        for (int i = 0; i < length; i++) {
+            if (contains[i]) {
+                Playlist playlist = listOfPlaylists.getPlaylistAt(originalIndexes.get(i));
+                for (int j = forRadioStations.size() - 1; j >= 0; j--) {
+                    RadioStation radioStation = activity.currentPlaylist.getRadioStationAt(forRadioStations.get(j));
+                    if (!playlist.contains(radioStation)) playlist.addRadioStation(radioStation);
+                }
+            }
+        }
+    }
+
     public void show() {
-        dialog.show();
+        if (items.isEmpty()) activity.showMessage(R.string.no_playlist_found);
+        else dialog.show();
     }
 }
