@@ -27,7 +27,7 @@ import de.sfuhrm.radiobrowser4j.ListParameter;
 import de.sfuhrm.radiobrowser4j.RadioBrowser;
 import de.sfuhrm.radiobrowser4j.SearchMode;
 
-class RadioStationDialog {
+class RadioStationDialog implements RadioApi.RadioStationCallback {
     MainActivity activity;
     AlertDialog.Builder builder;
     AlertDialog dialog;
@@ -46,7 +46,6 @@ class RadioStationDialog {
 
     RadioStationDialog(MainActivity _activity) {
         activity = _activity;
-
         builder = new AlertDialog.Builder(activity, R.style.Theme_OnlinePlaylistsDialogDark);
         builder.setTitle(activity.getString(R.string.add_video));
         dialogView = activity.getLayoutInflater().inflate(R.layout.add_video, null);
@@ -75,7 +74,6 @@ class RadioStationDialog {
         searchResults.setLayoutManager(new LinearLayoutManager(activity));
         cancelButton = dialogView.findViewById(R.id.cancelButton);
         cancelButton.setOnClickListener(v -> dialog.dismiss());
-        spinner = dialogView.findViewById(R.id.spinner);
         info = dialogView.findViewById(R.id.info);
         builder.setView(dialogView);
         dialog = builder.create();
@@ -96,71 +94,33 @@ class RadioStationDialog {
         searchResults.setVisibility(View.GONE);
         if (OnlinePlaylistsUtils.isConnected(activity)) {
             info.setText(R.string.loading);
-            getNetworkThread().start();
+            new RadioApi(this).getRadioStations(formatQuery(search.getText().toString()));
         } else {
             info.setText("Lütfen internet bağlantınızı kontrol edin.");
         }
         info.setVisibility(View.VISIBLE);
-
     }
 
-    private Thread getNetworkThread() {
-        return new Thread(() -> {
-            String userAgent = "Demo agent/1.0";
-            RadioBrowser radioBrowser = new RadioBrowser(ConnectionParams.builder()
-                    .apiUrl("https://de1.api.radio-browser.info/")
-                    .userAgent(userAgent)
-                    .timeout(5000)
-                    .build());
-
-            SearchMode[] searchModes = {SearchMode.BYNAME, SearchMode.BYCOUNTRYCODEEXACT, SearchMode.BYLANGUAGE, SearchMode.BYTAG, SearchMode.BYSTATE};
-            int position = spinner.getSelectedItemPosition();
-            searchMode = searchModes[position];
-            searchByCountry = position == 1;
-            String query = formatQuery(search.getText().toString());
-            resultPlaylist = new Playlist();
-
-            if (!query.isEmpty()) {
-                try {
-                    radioBrowser.listStationsBy(searchMode, query, ListParameter.create().order(FieldName.NAME))
-                            .forEach(station -> resultPlaylist.addRadioStationToEnd(
-                                    new RadioStation(station.getName(),
-                                            station.getStationUUID().toString(),
-                                            station.getUrlResolved(),
-                                            station.getFavicon(),
-                                            station.getHls())));
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
+    public void onGotRadioStations(Playlist _radioStations) {
+        resultPlaylist = _radioStations;
+        activity.runOnUiThread(() -> {
+            if (resultPlaylist.isEmpty()) {
+                info.setText(R.string.no_results_found);
+            } else {
+                searchResults.setVisibility(View.VISIBLE);
+                info.setVisibility(View.GONE);
+                searchResultsAdapter = new SearchResultsAdapter(this);
+                searchResults.setAdapter(searchResultsAdapter);
             }
-            activity.runOnUiThread(() -> {
-                if (resultPlaylist.isEmpty()) {
-                    info.setText(R.string.no_results_found);
-                } else {
-                    searchResults.setVisibility(View.VISIBLE);
-                    info.setVisibility(View.GONE);
-                    searchResultsAdapter = new SearchResultsAdapter(this);
-                    searchResults.setAdapter(searchResultsAdapter);
-                }
-            });
         });
     }
 
     private String formatQuery(String query) {
-        if (searchByCountry) {
-            for (String i : Locale.getISOCountries()) {
-                Locale locale = new Locale("", i);
-                if (locale.getDisplayCountry().toLowerCase().contains(query.toLowerCase()))
-                    return i;
-            }
-        } else {
-            try {
-                query = URLEncoder.encode(query, "UTF-8");
-            } catch (UnsupportedEncodingException e) {
-                throw new RuntimeException(e);
-            }
-            return query.replace("+", "%20");
+        try {
+            query = URLEncoder.encode(query, "UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
         }
-        return query;
+        return query.replace("+", "%20");
     }
 }

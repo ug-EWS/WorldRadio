@@ -18,6 +18,7 @@ class ManagePlaylistsDialog {
     ArrayList<Integer> originalIndexes;
     ArrayList<Integer> forRadioStations;
     boolean[] contains;
+    boolean custom;
     CharSequence[] itemsArr;
     int length;
     int length2;
@@ -46,16 +47,18 @@ class ManagePlaylistsDialog {
             contains[which] = isChecked;
         });
 
-        builder.setPositiveButton(R.string.copy, (dialog1, which) -> {
+        builder.setPositiveButton(custom ? R.string.copy : R.string.dialog_button_add, (dialog1, which) -> {
             copyRadioStation();
             activity.showMessage(R.string.copied);
         });
 
-        builder.setNeutralButton(R.string.move, (dialog1, which) -> {
-            copyRadioStation();
-            currentPlaylist.removeRadioStation(_forRadioStation);
-            activity.showMessage(R.string.moved);
-        });
+        if (custom)
+            builder.setNeutralButton(R.string.move, (dialog1, which) -> {
+                copyRadioStation();
+                currentPlaylist.removeRadioStation(_forRadioStation);
+                activity.playlistAdapter.removeItem(_forRadioStation);
+                activity.showMessage(R.string.moved);
+            });
         dialog = builder.create();
     }
 
@@ -82,18 +85,19 @@ class ManagePlaylistsDialog {
             contains[which] = isChecked;
         });
 
-        builder.setPositiveButton(R.string.copy, (dialog1, which) -> {
+        builder.setPositiveButton(custom ? R.string.copy : R.string.dialog_button_add, (dialog1, which) -> {
             copyRadioStations();
             activity.showMessage(R.string.copied);
             activity.setSelectionMode(false);
         });
 
-        builder.setNeutralButton(R.string.move, (dialog1, which) -> {
-            copyRadioStations();
-            currentPlaylist.removeRadioStations(forRadioStations);
-            activity.showMessage(R.string.moved);
-            activity.setSelectionMode(false);
-        });
+        if (custom)
+            builder.setNeutralButton(R.string.move, (dialog1, which) -> {
+                copyRadioStations();
+                currentPlaylist.removeRadioStations(forRadioStations);
+                activity.showMessage(R.string.moved);
+                activity.setSelectionMode(false);
+            });
         dialog = builder.create();
     }
 
@@ -101,6 +105,7 @@ class ManagePlaylistsDialog {
         activity = _activity;
         listOfPlaylists = activity.listOfPlaylists;
         currentPlaylist = activity.currentPlaylist;
+        custom = activity.currentLopIndex == 0;
 
         builder = new AlertDialog.Builder(activity, R.style.Theme_OnlinePlaylistsDialogDark);
         builder.setTitle(R.string.add_to_playlist);

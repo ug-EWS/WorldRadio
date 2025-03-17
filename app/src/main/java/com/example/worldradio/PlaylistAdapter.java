@@ -41,7 +41,7 @@ class PlaylistAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> impl
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
         View itemView = holder.itemView;
         int pos = holder.getAdapterPosition();
-        boolean playing = activity.currentPlaylistIndex == activity.playingPlaylistIndex && activity.playingRadioStationIndex == pos;
+        boolean playing = activity.currentLopIndex == activity.playingLopIndex && activity.currentPlaylistIndex == activity.playingPlaylistIndex && activity.playingRadioStationIndex == pos;
 
         LinearLayout layout = itemView.findViewById(R.id.layout);
         ImageView thumbnail = itemView.findViewById(R.id.videoThumbnail);
@@ -69,11 +69,16 @@ class PlaylistAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> impl
         else Glide.with(activity).load(thisVideo.faviconUrl).into(thumbnail);
 
         options.setVisibility(activity.selectionMode || activity.listSortMode || activity.searchMode ? View.GONE : View.VISIBLE);
+        options.setImageResource(activity.currentLopIndex == 0 ? R.drawable.baseline_more_vert_24 : R.drawable.baseline_playlist_add_24);
+
         checkBox.setVisibility(activity.selectionMode ? View.VISIBLE : View.GONE);
         checkBox.setChecked(activity.selectedItems.contains(position));
 
         PopupMenu popupMenu = activity.getRadioStationPopupMenu(options, pos);
-        options.setOnClickListener(view -> popupMenu.show());
+        options.setOnClickListener(view -> {
+            if (activity.currentLopIndex == 0) popupMenu.show();
+            else new ManagePlaylistsDialog(activity, pos).show();
+        });
     }
 
     @Override
@@ -140,7 +145,7 @@ class PlaylistAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> impl
 
     @Override
     public boolean isSwipeEnabled() {
-        return !activity.selectionMode;
+        return !activity.selectionMode && activity.currentLopIndex == 0;
     }
 
     @Override

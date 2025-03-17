@@ -101,6 +101,10 @@ public class ListOfPlaylists {
         return basePlaylist.title;
     }
 
+    public void sortPlaylists() {
+        playlists.sort(Comparator.comparing(playlist -> playlist.title, Comparator.naturalOrder()));
+    }
+
     public boolean isEmpty() {
         return playlists.isEmpty();
     }

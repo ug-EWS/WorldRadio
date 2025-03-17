@@ -70,6 +70,7 @@ class SearchResultsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                 activity.playlistAdapter.insertItem(dialog.whereToAdd);
                 activity.updateNoItemsView();
                 dialog.dialog.dismiss();
+                activity.playlistRecycler.scrollToPosition(dialog.whereToAdd);
             }
         });
     }

@@ -10,6 +10,9 @@ import android.widget.LinearLayout;
 
 import androidx.appcompat.app.AlertDialog;
 
+import de.sfuhrm.radiobrowser4j.ConnectionParams;
+import de.sfuhrm.radiobrowser4j.RadioBrowser;
+
 class PlaylistDialog {
     MainActivity activity;
     AlertDialog.Builder builder;
@@ -50,6 +53,8 @@ class PlaylistDialog {
                 if (text.isEmpty()) text = editText.getHint().toString();
                 activity.listOfPlaylists.addPlaylistTo(new Playlist(text, selectedIcon), whereToAdd);
                 activity.listOfPlaylistsAdapter.insertItem(whereToAdd);
+                activity.updateNoItemsView();
+                activity.listOfPlaylistsRecycler.scrollToPosition(whereToAdd);
             });
         } else {
             toEdit = activity.listOfPlaylists.getPlaylistAt(_forPlaylist);

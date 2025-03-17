@@ -4,4 +4,9 @@
     <item
         android:id="@+id/sort"
         android:title="@string/sort_playlists" />
+    <item
+        android:id="@+id/settings"
+        android:title="Ayarlar" >
+        <menu />
+    </item>
 </menu>

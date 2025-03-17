@@ -46,6 +46,7 @@ class ListOfPlaylistsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
         View itemView = holder.itemView;
         int pos = holder.getAdapterPosition();
+        boolean playing = activity.playingLopIndex == activity.currentLopIndex && activity.playingPlaylistIndex == pos;
 
         LinearLayout layout = itemView.findViewById(R.id.layout);
         ImageView icon = itemView.findViewById(R.id.playlistIcon);
@@ -55,16 +56,15 @@ class ListOfPlaylistsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         CheckBox checkBox = itemView.findViewById(R.id.checkBox);
 
         setItemOnClickListener(layout, pos);
-        setItemOnLongClickListener(layout, pos);
 
         layout.setBackgroundResource(
-                activity.playingPlaylistIndex == pos ? R.drawable.list_item_playing
+                playing ? R.drawable.list_item_playing
                         : R.drawable.list_item);
 
-        int iconIndex = activity.listOfPlaylists.getPlaylistAt(pos).icon;
+        int iconIndex = activity.currentLop.getPlaylistAt(pos).icon;
         if (iconIndex > 4 || iconIndex < 0) iconIndex = 0;
         icon.setImageResource(icons[iconIndex]);
-        String titleStr = activity.listOfPlaylists.getPlaylistAt(pos).title;
+        String titleStr = activity.currentLop.getPlaylistAt(pos).title;
         if (activity.searchMode && activity.foundItemIndex == pos) {
             SpannableString spannableString = new SpannableString(titleStr);
             spannableString.setSpan(new ForegroundColorSpan(activity.getColor(R.color.yellow)),
@@ -73,21 +73,23 @@ class ListOfPlaylistsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                     Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
             title.setText(spannableString, TextView.BufferType.SPANNABLE);
         } else title.setText(titleStr);
-        size.setText(String.valueOf(activity.listOfPlaylists.getPlaylistAt(pos).getLength()).concat(" kanal"));
-        title.setTextColor(activity.getColor(activity.playingPlaylistIndex == pos ? R.color.green2 : R.color.grey1));
+        size.setText(String.valueOf(activity.currentLop.getPlaylistAt(pos).getLength()).concat(" kanal"));
+        title.setTextColor(activity.getColor(playing ? R.color.green2 : R.color.grey1));
 
         checkBox.setVisibility(activity.selectionMode ? View.VISIBLE : View.GONE);
         checkBox.setChecked(activity.selectedItems.contains(position));
-        options.setVisibility(activity.selectionMode || activity.listSortMode || activity.searchMode ? View.GONE : View.VISIBLE);
+        options.setVisibility(activity.selectionMode || activity.listSortMode || activity.searchMode || activity.currentLopIndex != 0 ? View.GONE : View.VISIBLE);
 
-        PopupMenu popupMenu = activity.getPlaylistPopupMenu(options, false, pos);
-
-        options.setOnClickListener(view -> popupMenu.show());
+        if (activity.currentLopIndex == 0) {
+            PopupMenu popupMenu = activity.getPlaylistPopupMenu(options, false, pos);
+            options.setOnClickListener(view -> popupMenu.show());
+            setItemOnLongClickListener(layout, pos);
+        }
     }
 
     @Override
     public int getItemCount() {
-        return activity.listOfPlaylists.getLength();
+        return activity.currentLop.getLength();
     }
 
     public void insertItem(int index) {
@@ -114,25 +116,24 @@ class ListOfPlaylistsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 
     private void setItemOnClickListener(View v, int position) {
         v.setOnClickListener(view -> {
-            if (activity.selectionMode) {
-                if (activity.selectedItems.contains(position))
-                    activity.selectedItems.remove((Integer) position);
-                else activity.selectedItems.add(position);
-                if (activity.selectedItems.isEmpty()) {
-                    activity.setSelectionMode(false);
-                } else {
-                    notifyItemChanged(position);
-                    activity.updateToolbar();
-                }
-            }
-            else activity.openPlaylist(position);
-            if (activity.searchMode) activity.setSearchMode(false);
+                if (activity.selectionMode) {
+                    if (activity.selectedItems.contains(position))
+                        activity.selectedItems.remove((Integer) position);
+                    else activity.selectedItems.add(position);
+                    if (activity.selectedItems.isEmpty()) {
+                        activity.setSelectionMode(false);
+                    } else {
+                        notifyItemChanged(position);
+                        activity.updateToolbar();
+                    }
+                } else activity.openPlaylist(position);
+                if (activity.searchMode) activity.setSearchMode(false);
         });
     }
 
     private void setItemOnLongClickListener(View _view, int position) {
         _view.setOnLongClickListener(view -> {
-            if (!(activity.selectionMode || activity.listSortMode || activity.searchMode)) {
+            if (!(activity.selectionMode || activity.listSortMode || activity.searchMode || activity.currentLopIndex != 0)) {
                 activity.selectedItems = new ArrayList<>();
                 activity.selectedItems.add(position);
                 activity.setSelectionMode(true);
@@ -143,7 +144,7 @@ class ListOfPlaylistsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 
     @Override
     public boolean isSwipeEnabled() {
-        return !activity.selectionMode;
+        return !activity.selectionMode && activity.currentLopIndex == 0;
     }
 
     @Override
