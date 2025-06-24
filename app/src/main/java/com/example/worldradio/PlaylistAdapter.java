@@ -47,12 +47,16 @@ class PlaylistAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> impl
         ImageView thumbnail = itemView.findViewById(R.id.videoThumbnail);
         TextView title = itemView.findViewById(R.id.videoTitle);
         ImageView options = itemView.findViewById(R.id.radioAddTo);
-        CheckBox checkBox = itemView.findViewById(R.id.checkBox);
 
         setItemOnClickListener(layout, pos);
         setItemOnLongClickListener(layout, pos);
 
-        layout.setBackgroundResource(playing ? R.drawable.list_item_playing : R.drawable.list_item);
+        layout.setAlpha(activity.selectionMode && !activity.selectedItems.contains(pos) ? 0.5F : 1.0F);
+
+        thumbnail.setBackgroundResource(
+                activity.selectionMode && activity.selectedItems.contains(pos) ? R.drawable.playlist_icon_selected
+                        : playing ? R.drawable.playlist_icon_playing
+                        : R.drawable.playlist_icon);
         title.setTextColor(activity.getColor(playing ? R.color.green2 : R.color.grey1));
 
         RadioStation thisVideo = activity.currentPlaylist.getRadioStationAt(pos);
@@ -68,11 +72,8 @@ class PlaylistAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> impl
         if (thisVideo.faviconUrl.isEmpty()) thumbnail.setImageResource(R.drawable.baseline_radio_24);
         else Glide.with(activity).load(thisVideo.faviconUrl).into(thumbnail);
 
-        options.setVisibility(activity.selectionMode || activity.listSortMode || activity.searchMode ? View.GONE : View.VISIBLE);
+        options.setVisibility(activity.selectionMode || activity.listSortMode || activity.searchMode ? View.INVISIBLE : View.VISIBLE);
         options.setImageResource(activity.currentLopIndex == 0 ? R.drawable.baseline_more_vert_24 : R.drawable.baseline_playlist_add_24);
-
-        checkBox.setVisibility(activity.selectionMode ? View.VISIBLE : View.GONE);
-        checkBox.setChecked(activity.selectedItems.contains(position));
 
         PopupMenu popupMenu = activity.getRadioStationPopupMenu(options, pos);
         options.setOnClickListener(view -> {
@@ -121,10 +122,11 @@ class PlaylistAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> impl
                     activity.updateToolbar();
                 }
             } else if (!activity.listSortMode) {
-                if (activity.currentPlaylistIndex == activity.playingPlaylistIndex && position == activity.playingRadioStationIndex) {
+                if (activity.currentLopIndex == activity.playingLopIndex
+                        && activity.currentPlaylistIndex == activity.playingPlaylistIndex
+                        && position == activity.playingRadioStationIndex) {
                     if (activity.isPlaying) activity.exoPlayer.pause();
                     else activity.exoPlayer.play();
-                    activity.onStateChange(!activity.isPlaying);
                 } else activity.playRadioStation(position, true, true);
             }
             if (activity.searchMode) activity.setSearchMode(false);
@@ -158,14 +160,14 @@ class PlaylistAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> impl
     public void onRowMoved(int fromPosition, int toPosition) {
         activity.currentPlaylist.moveRadioStation(fromPosition, toPosition);
 
-        int positionMin = Math.min(fromPosition, toPosition);
-        int positionMax = Math.max(fromPosition, toPosition);
+        //int positionMin = Math.min(fromPosition, toPosition);
+        //int positionMax = Math.max(fromPosition, toPosition);
 
         if (activity.currentPlaylistIndex == activity.playingPlaylistIndex && activity.playingRadioStation != null)
             activity.playingRadioStationIndex = activity.currentPlaylist.getIndexOf(activity.playingRadioStation);
 
         notifyItemMoved(fromPosition, toPosition);
-        notifyItemRangeChanged(positionMin, positionMax - positionMin + 1);
+        //notifyItemRangeChanged(positionMin, positionMax - positionMin + 1);
 
     }
 

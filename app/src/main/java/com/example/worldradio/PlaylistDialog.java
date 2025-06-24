@@ -35,6 +35,7 @@ class PlaylistDialog {
             iconSelector.getChildAt(i).setOnClickListener(onClickListener);
         }
         builder.setNegativeButton(activity.getString(R.string.dialog_button_cancel), null);
+        builder.setOnDismissListener(dialog1 -> OnlinePlaylistsUtils.hideKeyboard(activity, editText));
         builder.setView(dialogView);
         editText.setOnEditorActionListener((v, actionId, event) -> {
             if (actionId == EditorInfo.IME_ACTION_GO) {
@@ -46,8 +47,7 @@ class PlaylistDialog {
         boolean _newPlaylist = _forPlaylist == -1;
         builder.setTitle(activity.getString(_newPlaylist ? R.string.add_playlist : R.string.edit_playlist));
         if (_newPlaylist) {
-            selectIcon(0);
-            editText.setText("");
+            resetView();
             builder.setPositiveButton(activity.getString(R.string.dialog_button_add), (dialog, which) -> {
                 String text = editText.getText().toString();
                 if (text.isEmpty()) text = editText.getHint().toString();
@@ -55,6 +55,7 @@ class PlaylistDialog {
                 activity.listOfPlaylistsAdapter.insertItem(whereToAdd);
                 activity.updateNoItemsView();
                 activity.listOfPlaylistsRecycler.scrollToPosition(whereToAdd);
+                resetView();
             });
         } else {
             toEdit = activity.listOfPlaylists.getPlaylistAt(_forPlaylist);
@@ -72,13 +73,18 @@ class PlaylistDialog {
         dialog = builder.create();
     }
 
+    private void resetView() {
+        selectIcon(0);
+        editText.setText("");
+    }
+
     private void selectIcon(int index) {
         if (index > 4 || index < 0) index = 0;
         selectedIcon = index;
         for (int i = 0; i < 5; i++) {
             ImageView icon = (ImageView) iconSelector.getChildAt(i);
-            icon.setBackgroundResource(i == selectedIcon ? R.drawable.icon_selector_1 : R.drawable.icon_selector);
-            icon.setColorFilter(i == selectedIcon ? Color.WHITE : activity.getColor(R.color.grey6));
+            icon.setBackgroundResource(i == selectedIcon ? R.drawable.playlist_icon : 0);
+            icon.setColorFilter(activity.getColor(i == selectedIcon ? R.color.teal_700 : R.color.grey6));
         }
     }
 
@@ -89,5 +95,6 @@ class PlaylistDialog {
     public void show(int _whereToAdd) {
         whereToAdd = _whereToAdd;
         dialog.show();
+        OnlinePlaylistsUtils.showKeyboard(activity, editText);
     }
 }

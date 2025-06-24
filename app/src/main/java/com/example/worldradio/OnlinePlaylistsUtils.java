@@ -1,5 +1,7 @@
 package com.example.worldradio;
 
+import static android.content.Context.INPUT_METHOD_SERVICE;
+
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -10,6 +12,7 @@ import android.os.ParcelFileDescriptor;
 import android.util.DisplayMetrics;
 import android.util.TypedValue;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.LinearLayout;
 
 import androidx.appcompat.app.AlertDialog;
@@ -37,12 +40,23 @@ public class OnlinePlaylistsUtils {
         v.setLayoutParams(p);
     }
 
+    public static void showKeyboard(Context c, View v) {
+        v.requestFocus();
+        InputMethodManager imm = (InputMethodManager) c.getSystemService(INPUT_METHOD_SERVICE);
+        imm.showSoftInput(v, InputMethodManager.SHOW_IMPLICIT);
+    }
+
+    public static void hideKeyboard(Context c, View v) {
+        InputMethodManager imm = (InputMethodManager) c.getSystemService(INPUT_METHOD_SERVICE);
+        imm.hideSoftInputFromWindow(v.getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
+    }
+
     public static String readFile(Context c, Uri uri) {
         try {
             InputStream in = c.getContentResolver().openInputStream(uri);
             BufferedReader r = new BufferedReader(new InputStreamReader(in));
             StringBuilder total = new StringBuilder();
-            for (String line; (line = r.readLine()) != null; ) {
+            for (String line; (line = r.readLine()) != null;) {
                 total.append(line).append('\n');
             }
            return total.toString();

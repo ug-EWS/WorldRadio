@@ -2,6 +2,6 @@
     <resources xmlns:tools="http://schemas.android.com/tools">
         <!-- Base application theme. -->
         <style name="Theme.OnlinePlaylistsDialogDark" parent="Theme.AppCompat.DayNight.Dialog.Alert">
-            <item name="android:colorBackground">@color/grey3</item>
+            <item name="android:colorBackground">@color/grey10</item>
         </style>
     </resources>

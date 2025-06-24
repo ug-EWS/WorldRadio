@@ -7,7 +7,7 @@
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/back">
+    android:background="@color/grey10">
 
     <LinearLayout
         android:id="@+id/layoutMain"
@@ -15,29 +15,17 @@
         android:layout_height="match_parent"
         android:orientation="vertical">
 
-        <View
-            android:id="@+id/statusBarBackground"
-            android:layout_width="wrap_content"
-            android:layout_height="8dp"
-            android:background="@color/grey2" />
-
-        <LinearLayout
-            android:id="@+id/musicController"
+        <androidx.cardview.widget.CardView
+            android:id="@+id/controllerCard"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@drawable/controller_back"
-            android:orientation="vertical"
-            android:visibility="visible">
+            android:layout_margin="8dp"
+            app:cardBackgroundColor="@color/grey0"
+            app:cardCornerRadius="16dp"
+            app:cardElevation="1dp">
 
             <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:background="@color/grey3"
-                android:orientation="horizontal">
-
-            </LinearLayout>
-
-            <LinearLayout
+                android:id="@+id/musicController"
                 android:layout_width="match_parent"
                 android:layout_height="56dp"
                 android:gravity="center_vertical"
@@ -99,13 +87,7 @@
 
             </LinearLayout>
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:background="@color/grey3"
-                android:orientation="horizontal"></LinearLayout>
-
-        </LinearLayout>
+        </androidx.cardview.widget.CardView>
 
         <LinearLayout
             android:id="@+id/list"
@@ -118,7 +100,6 @@
                 android:id="@+id/toolbar"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="@color/grey2"
                 android:gravity="center_vertical"
                 android:minHeight="52dp"
                 android:orientation="horizontal">
@@ -213,49 +194,10 @@
 
             </LinearLayout>
 
-            <com.google.android.material.tabs.TabLayout
-                android:id="@+id/tabLayout"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:background="@color/grey2"
-                app:tabGravity="center"
-                app:tabIndicatorColor="@color/teal_700"
-                app:tabMode="scrollable"
-                app:tabSelectedTextColor="@color/teal_700">
-
-                <com.google.android.material.tabs.TabItem
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="LİSTELERİM" />
-
-                <com.google.android.material.tabs.TabItem
-                    android:id="@+id/tabItem"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="EN İYİLER" />
-
-                <com.google.android.material.tabs.TabItem
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="ÜLKELER" />
-
-                <com.google.android.material.tabs.TabItem
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="DİLLER" />
-
-                <com.google.android.material.tabs.TabItem
-                    android:id="@+id/tabItem2"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="KONULAR" />
-            </com.google.android.material.tabs.TabLayout>
-
             <LinearLayout
                 android:id="@+id/searchBar"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="@color/grey2"
                 android:gravity="center_vertical"
                 android:minHeight="52dp"
                 android:orientation="horizontal"
@@ -304,42 +246,200 @@
             </LinearLayout>
 
             <LinearLayout
-                android:id="@+id/recyclerLayout"
+                android:id="@+id/mainScreen"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:orientation="horizontal">
+                android:orientation="vertical"
+                android:visibility="gone">
 
-                <androidx.recyclerview.widget.RecyclerView
-                    android:id="@+id/listOfPlaylistsRecycler"
+                <com.google.android.material.tabs.TabLayout
+                    android:id="@+id/tabLayout"
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@color/transparent"
                     android:clipToPadding="false"
-                    android:paddingBottom="140dp"
-                    android:scrollbarStyle="outsideOverlay"
-                    android:scrollbars="vertical">
+                    android:paddingStart="16dp"
+                    android:paddingEnd="16dp"
+                    app:tabGravity="center"
+                    app:tabIndicatorColor="@color/teal_700"
+                    app:tabMode="scrollable"
+                    app:tabSelectedTextColor="@color/teal_700">
 
-                </androidx.recyclerview.widget.RecyclerView>
+                    <com.google.android.material.tabs.TabItem
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/my_playlists" />
 
-                <androidx.recyclerview.widget.RecyclerView
-                    android:id="@+id/playlistRecycler"
+                    <com.google.android.material.tabs.TabItem
+                        android:id="@+id/tabItem"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/top_stations" />
+
+                    <com.google.android.material.tabs.TabItem
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/countries" />
+
+                    <com.google.android.material.tabs.TabItem
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/languages" />
+
+                    <com.google.android.material.tabs.TabItem
+                        android:id="@+id/tabItem2"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/tags" />
+                </com.google.android.material.tabs.TabLayout>
+
+                <LinearLayout
+                    android:id="@+id/recyclerLayout"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:clipToPadding="false"
-                    android:paddingBottom="140dp"
-                    android:scrollbarStyle="outsideOverlay"
-                    android:scrollbars="vertical">
+                    android:orientation="horizontal">
 
-                </androidx.recyclerview.widget.RecyclerView>
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/listOfPlaylistsRecycler"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:clipToPadding="false"
+                        android:paddingTop="8dp"
+                        android:paddingBottom="140dp"
+                        android:scrollbarStyle="outsideOverlay"
+                        android:scrollbars="vertical">
 
-                <TextView
-                    android:id="@+id/warning"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:gravity="center"
-                    android:text="@string/no_playlists"
-                    android:textSize="16sp" />
+                    </androidx.recyclerview.widget.RecyclerView>
+
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/playlistRecycler"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:clipToPadding="false"
+                        android:paddingBottom="140dp"
+                        android:scrollbarStyle="outsideOverlay"
+                        android:scrollbars="vertical">
+
+                    </androidx.recyclerview.widget.RecyclerView>
+
+                    <TextView
+                        android:id="@+id/warning"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:gravity="center"
+                        android:text="@string/no_playlists"
+                        android:textSize="16sp" />
+
+                </LinearLayout>
 
             </LinearLayout>
+
+            <ScrollView
+                android:id="@+id/settingsScreen"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:clipToPadding="false">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:paddingStart="32dp"
+                        android:text="@string/auto_shut_down" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal"
+                        android:paddingStart="24dp">
+
+                        <EditText
+                            android:id="@+id/autoShutDownEditText"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:gravity="center_horizontal|center_vertical"
+                            android:hint="60"
+                            android:inputType="number|numberDecimal"
+                            android:maxLength="3"
+                            android:paddingStart="16dp"
+                            android:paddingEnd="16dp"
+                            android:textColor="@color/grey1"
+                            android:textColorHint="@color/blue_grey" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="8dp"
+                            android:text="@string/minutes"
+                            android:textColor="@color/grey5"
+                            android:textSize="16sp" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:id="@+id/startCancelTimerButton"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="16dp"
+                        android:background="@drawable/list_item"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal"
+                        android:padding="8dp">
+
+                        <ImageView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            app:srcCompat="@drawable/baseline_arrow_forward_24" />
+
+                        <TextView
+                            android:id="@+id/timerStartText"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="5dp"
+                            android:layout_weight="1"
+                            android:text="@string/start_timer"
+                            android:textColor="@color/grey1" />
+                    </LinearLayout>
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="40dp"
+                        android:paddingStart="32dp"
+                        android:text="@string/theme" />
+
+                    <RadioGroup
+                        android:id="@+id/themesButton"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent">
+
+                        <RadioButton
+                            android:id="@+id/light"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="@string/light" />
+
+                        <RadioButton
+                            android:id="@+id/dark"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="@string/dark" />
+
+                        <RadioButton
+                            android:id="@+id/auto"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="@string/auto" />
+
+                    </RadioGroup>
+
+                </LinearLayout>
+            </ScrollView>
 
         </LinearLayout>
 

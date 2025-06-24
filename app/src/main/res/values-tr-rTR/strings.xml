@@ -97,5 +97,23 @@
     <string name="loading">Yükleniyor…</string>
     <string name="no_results_found">Sonuç bulunamadı.</string>
     <string name="station_info">Kanal bilgileri</string>
+    <string name="n_stations">%d kanal</string>
+    <string name="start_timer">Zamanlayıcıyı başlat</string>
+    <string name="cancel_timer">Zamanlayıcıyı iptal et</string>
+    <string name="settings">Ayarlar</string>
+    <string name="minutes">dakika</string>
+    <string name="theme">Tema</string>
+    <string name="light">Açık</string>
+    <string name="dark">Koyu</string>
+    <string name="auto">Otomatik</string>
+    <string name="check_internet_connection">Lütfen İnternet bağlantınızı kontrol edin.</string>
+    <string name="at_least_three_letters">En az üç harfli bir kelime arayabilirsiniz.</string>
+    <string name="my_playlists">LİSTELERİM</string>
+    <string name="top_stations">EN İYİLER</string>
+    <string name="countries">ÜLKELER</string>
+    <string name="languages">DİLLER</string>
+    <string name="tags">KONULAR</string>
+    <string name="world_top_20">Dünya Top20</string>
+    <string name="most_liked">En çok beğeni alanlar</string>
 
 </resources>

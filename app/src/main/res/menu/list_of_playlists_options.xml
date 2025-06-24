@@ -6,7 +6,5 @@
         android:title="@string/sort_playlists" />
     <item
         android:id="@+id/settings"
-        android:title="Ayarlar" >
-        <menu />
-    </item>
+        android:title="@string/settings" />
 </menu>

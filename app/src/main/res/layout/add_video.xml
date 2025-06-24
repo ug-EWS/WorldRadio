@@ -9,99 +9,77 @@
     android:paddingEnd="16dp"
     android:paddingBottom="8dp">
 
-    <androidx.cardview.widget.CardView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_marginBottom="8dp"
-        app:cardBackgroundColor="@color/grey2"
-        app:cardCornerRadius="16dp"
-        app:cardElevation="0dp">
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@color/grey2"
-            android:gravity="center_vertical"
-            android:orientation="horizontal">
-
-            <EditText
-                android:id="@+id/search"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:background="#00000000"
-                android:ems="10"
-                android:hint="@string/url_id_search"
-                android:imeOptions="actionGo"
-                android:inputType="text"
-                android:padding="16dp"
-                android:textColor="@color/grey1"
-                android:textColorHint="@color/blue_grey"
-                android:textSize="14sp" />
-
-            <ImageView
-                android:id="@+id/searchButton"
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:background="@drawable/ripple_on_dark_grey"
-                android:padding="16dp"
-                android:visibility="gone"
-                app:srcCompat="@drawable/baseline_search_24" />
-        </LinearLayout>
-    </androidx.cardview.widget.CardView>
-
-    <androidx.cardview.widget.CardView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        app:cardBackgroundColor="@color/grey3"
-        app:cardCornerRadius="8dp"
-        app:cardElevation="0dp">
-
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/searchResults"
-            android:layout_width="match_parent"
-            android:layout_height="300dp"
-            android:background="@drawable/back"
-            android:scrollbarStyle="outsideOverlay"
-            android:scrollbars="vertical"
-            android:visibility="gone">
-
-        </androidx.recyclerview.widget.RecyclerView>
-
-        <TextView
-            android:id="@+id/info"
-            android:layout_width="match_parent"
-            android:layout_height="300dp"
-            android:gravity="center"
-            android:text="@string/no_results_found"
-            android:visibility="gone" />
-
-    </androidx.cardview.widget.CardView>
-
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:gravity="end"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
         android:orientation="horizontal">
 
-        <Button
-            android:id="@+id/addButton"
-            android:layout_width="wrap_content"
+        <EditText
+            android:id="@+id/search"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:backgroundTint="@color/teal_700"
-            android:text="@string/dialog_button_add"
-            android:textSize="12sp"
-            android:visibility="gone" />
-
-        <Button
-            android:id="@+id/cancelButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:backgroundTint="@color/grey3"
-            android:text="@string/dialog_button_cancel"
+            android:layout_weight="1"
+            android:ems="10"
+            android:hint="@string/url_id_search"
+            android:imeOptions="actionGo"
+            android:inputType="text"
+            android:padding="16dp"
             android:textColor="@color/grey1"
-            android:textSize="12sp" />
+            android:textColorHint="@color/blue_grey"
+            android:textSize="16sp" />
+
+        <ImageView
+            android:id="@+id/searchButton"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:background="@drawable/ripple_on_dark_grey"
+            android:padding="16dp"
+            android:visibility="gone"
+            app:srcCompat="@drawable/baseline_search_24" />
+
     </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/warning"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:visibility="gone">
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="8dp"
+            app:srcCompat="@drawable/baseline_warning_amber_24" />
+
+        <TextView
+            android:id="@+id/textView2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:padding="8dp"
+            android:text="@string/at_least_three_letters" />
+    </LinearLayout>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/searchResults"
+        android:layout_width="match_parent"
+        android:layout_height="300dp"
+        android:background="@color/grey10"
+        android:scrollbarStyle="outsideOverlay"
+        android:scrollbars="vertical"
+        android:visibility="gone">
+
+    </androidx.recyclerview.widget.RecyclerView>
+
+    <TextView
+        android:id="@+id/info"
+        android:layout_width="match_parent"
+        android:layout_height="300dp"
+        android:gravity="center"
+        android:text="@string/no_results_found"
+        android:visibility="gone" />
 
 </LinearLayout>

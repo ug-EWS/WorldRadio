@@ -10,6 +10,7 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
 
@@ -36,12 +37,9 @@ class RadioStationDialog implements RadioApi.RadioStationCallback {
     RecyclerView searchResults;
     SearchResultsAdapter searchResultsAdapter;
     Playlist resultPlaylist;
-    Button cancelButton;
-    Spinner spinner;
     TextView info;
+    LinearLayout queryWarning;
     ImageView searchButton;
-    SearchMode searchMode;
-    boolean searchByCountry;
     int whereToAdd;
 
     RadioStationDialog(MainActivity _activity) {
@@ -57,7 +55,7 @@ class RadioStationDialog implements RadioApi.RadioStationCallback {
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                searchButton.setVisibility(s.length() == 0 ? View.GONE : View.VISIBLE);
+                searchButton.setVisibility(s.length() < 3 ? View.GONE : View.VISIBLE);
             }
 
             @Override
@@ -72,9 +70,14 @@ class RadioStationDialog implements RadioApi.RadioStationCallback {
         searchButton.setOnClickListener(v -> search());
         searchResults = dialogView.findViewById(R.id.searchResults);
         searchResults.setLayoutManager(new LinearLayoutManager(activity));
-        cancelButton = dialogView.findViewById(R.id.cancelButton);
-        cancelButton.setOnClickListener(v -> dialog.dismiss());
         info = dialogView.findViewById(R.id.info);
+        queryWarning = dialogView.findViewById(R.id.warning);
+        builder.setNegativeButton(R.string.dialog_button_cancel, null);
+        builder.setOnDismissListener(dialog1 -> {
+            queryWarning.setVisibility(View.GONE);
+            OnlinePlaylistsUtils.hideKeyboard(activity, search);
+        }
+        );
         builder.setView(dialogView);
         dialog = builder.create();
     }
@@ -86,19 +89,26 @@ class RadioStationDialog implements RadioApi.RadioStationCallback {
     public void show(int _whereToAdd) {
         whereToAdd = _whereToAdd;
         dialog.show();
+        OnlinePlaylistsUtils.showKeyboard(activity, search);
     }
 
     private void search() {
-        InputMethodManager imm = (InputMethodManager) activity.getSystemService(INPUT_METHOD_SERVICE);
-        imm.hideSoftInputFromWindow(search.getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
-        searchResults.setVisibility(View.GONE);
-        if (OnlinePlaylistsUtils.isConnected(activity)) {
-            info.setText(R.string.loading);
-            new RadioApi(this).getRadioStations(formatQuery(search.getText().toString()));
+        String query = search.getText().toString();
+        if (query.length() < 3) {
+            queryWarning.setVisibility(View.VISIBLE);
         } else {
-            info.setText("Lütfen internet bağlantınızı kontrol edin.");
+            queryWarning.setVisibility(View.GONE);
+            InputMethodManager imm = (InputMethodManager) activity.getSystemService(INPUT_METHOD_SERVICE);
+            imm.hideSoftInputFromWindow(search.getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
+            searchResults.setVisibility(View.GONE);
+            if (OnlinePlaylistsUtils.isConnected(activity)) {
+                info.setText(R.string.loading);
+                new RadioApi(this).getRadioStations(formatQuery(query));
+            } else {
+                info.setText(activity.getString(R.string.check_internet_connection));
+            }
+            info.setVisibility(View.VISIBLE);
         }
-        info.setVisibility(View.VISIBLE);
     }
 
     public void onGotRadioStations(Playlist _radioStations) {

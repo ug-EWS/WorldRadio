@@ -53,13 +53,15 @@ class ListOfPlaylistsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         TextView title = itemView.findViewById(R.id.playlistTitle);
         TextView size = itemView.findViewById(R.id.playlistSize);
         ImageView options = itemView.findViewById(R.id.playlistOptions);
-        CheckBox checkBox = itemView.findViewById(R.id.checkBox);
 
         setItemOnClickListener(layout, pos);
 
-        layout.setBackgroundResource(
-                playing ? R.drawable.list_item_playing
-                        : R.drawable.list_item);
+        layout.setAlpha(activity.selectionMode && !activity.selectedItems.contains(pos) ? 0.5F : 1.0F);
+
+        icon.setBackgroundResource(
+                activity.selectionMode && activity.selectedItems.contains(pos) ? R.drawable.playlist_icon_selected
+                        : playing ? R.drawable.playlist_icon_playing
+                        : R.drawable.playlist_icon);
 
         int iconIndex = activity.currentLop.getPlaylistAt(pos).icon;
         if (iconIndex > 4 || iconIndex < 0) iconIndex = 0;
@@ -73,12 +75,10 @@ class ListOfPlaylistsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
                     Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
             title.setText(spannableString, TextView.BufferType.SPANNABLE);
         } else title.setText(titleStr);
-        size.setText(String.valueOf(activity.currentLop.getPlaylistAt(pos).getLength()).concat(" kanal"));
+        size.setText(String.format(activity.getString(R.string.n_stations), activity.currentLop.getPlaylistAt(pos).getLength()));
         title.setTextColor(activity.getColor(playing ? R.color.green2 : R.color.grey1));
 
-        checkBox.setVisibility(activity.selectionMode ? View.VISIBLE : View.GONE);
-        checkBox.setChecked(activity.selectedItems.contains(position));
-        options.setVisibility(activity.selectionMode || activity.listSortMode || activity.searchMode || activity.currentLopIndex != 0 ? View.GONE : View.VISIBLE);
+        options.setVisibility(activity.selectionMode || activity.listSortMode || activity.searchMode || activity.currentLopIndex != 0 ? View.INVISIBLE : View.VISIBLE);
 
         if (activity.currentLopIndex == 0) {
             PopupMenu popupMenu = activity.getPlaylistPopupMenu(options, false, pos);
@@ -155,14 +155,14 @@ class ListOfPlaylistsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     @Override
     public void onRowMoved(int fromPosition, int toPosition) {
         activity.listOfPlaylists.movePlaylist(fromPosition, toPosition);
-        int positionMin = Math.min(fromPosition, toPosition);
-        int positionMax = Math.max(fromPosition, toPosition);
+        //int positionMin = Math.min(fromPosition, toPosition);
+        //int positionMax = Math.max(fromPosition, toPosition);
 
         if (activity.playingPlaylist != null)
             activity.playingPlaylistIndex = activity.listOfPlaylists.getIndexOf(activity.playingPlaylist);
 
         notifyItemMoved(fromPosition, toPosition);
-        notifyItemRangeChanged(positionMin, positionMax - positionMin + 1);
+        //notifyItemRangeChanged(positionMin, positionMax - positionMin + 1);
     }
 
     @Override

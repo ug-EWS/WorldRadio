@@ -45,15 +45,12 @@ public class Playlist {
     }
 
     public Playlist fromJson (String _json) {
-        radioStations = new ArrayList<>();
         HashMap<String, Object> map = Json.toMap(_json);
-        ArrayList<String> sourceList = Json.toList((String) map.get("radioStations"));
         title = (String) map.get("title");
         icon = map.containsKey("icon") ? Integer.parseInt((String) map.get("icon")) : R.drawable.baseline_featured_play_list_24;
-        type = map.containsKey("type") ? Integer.parseInt((String) map.get("type")) : 0;
-        countryCode = (String) map.getOrDefault("countryCode", "");
+        ArrayList<String> sourceList = Json.toList((String) map.get("radioStations"));
         RadioStation ytv;
-
+        radioStations = new ArrayList<>();
         for (String i: sourceList) {
             ytv = new RadioStation().fromJson(i);
             radioStations.add(ytv);
@@ -105,12 +102,8 @@ public class Playlist {
     }
 
     public void moveRadioStation(int from, int to) {
-        if (from < to)
-            for (int i = from; i < to; i++)
-                Collections.swap(radioStations, i, i + 1);
-         else
-            for (int i = from; i > to; i--)
-                Collections.swap(radioStations, i, i - 1);
+        if (from < to) for (int i = from; i < to; i++) Collections.swap(radioStations, i, i + 1);
+        else for (int i = from; i > to; i--) Collections.swap(radioStations, i, i - 1);
     }
 
     public RadioStation getRadioStationAt(int index) {
@@ -131,8 +124,6 @@ public class Playlist {
         for (RadioStation i : radioStations) list.add(i.getJson());
         map.put("title", title);
         map.put("icon", String.valueOf(icon));
-        map.put("type", String.valueOf(type));
-        if (type == 2) map.put("countryCode", countryCode);
         map.put("radioStations", Json.valueOf(list));
         return Json.valueOf(map);
     }

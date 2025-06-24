@@ -29,7 +29,9 @@
     <color name="grey7">#80CCCCCC</color>
     <color name="grey8">@color/very_light_grey</color>
     <color name="grey9">@color/less_light_grey</color>
+    <color name="grey10">@color/white</color>
     <color name="green1">#8099CC99</color>
     <color name="green2">#FF00AA00</color>
     <color name="yellow">#FFAAAA00</color>
+    <color name="teal">#FF93DCD5</color>
 </resources>
