@@ -364,11 +364,10 @@ public class MainActivity extends AppCompatActivity implements RadioApi.LopCallb
         addButton.setOnClickListener(v -> {if (playlistOpen) radioStationDialog.show(); else playlistDialog.show();});
         icon.setOnClickListener(v -> back());
         options.setOnClickListener(v -> {
-            if (!(playlistOpen || currentLopIndex == 0)) {
-                setSettingsOpen(true);
-            } else {
+            if (currentLopIndex == 0)
                 (playlistOpen ? getPlaylistPopupMenu(options, true, currentPlaylistIndex) : getListOfPlaylistsPopupMenu()).show();
-            }});
+            else setSettingsOpen(true);
+        });
         musicTitle = findViewById(R.id.musicTitle);
         replayButton = findViewById(R.id.infoButton);
         replayButton.setOnClickListener(v -> controllerPrevious());
@@ -921,8 +920,10 @@ public class MainActivity extends AppCompatActivity implements RadioApi.LopCallb
     }
 
     private void setControllerVisibility(boolean visible) {
-        TransitionManager.beginDelayedTransition(layout);
-        controllerCard.setVisibility(visible ? View.VISIBLE : View.GONE);
+        if (!(visible && (controllerCard.getVisibility() == View.VISIBLE))) {
+            TransitionManager.beginDelayedTransition(layout);
+            controllerCard.setVisibility(visible ? View.VISIBLE : View.GONE);
+        }
     }
 
     private void selectAllItems() {
