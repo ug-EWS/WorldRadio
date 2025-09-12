@@ -34,4 +34,7 @@
     <color name="green2">#FF00FF00</color>
     <color name="yellow">#FFFFFF00</color>
     <color name="teal">#FF033635</color>
+    <color name="golden">#FFFFC400</color>
+    <color name="silver">#FF9E9E9E</color>
+    <color name="bronze">#FFCE8362</color>
 </resources>

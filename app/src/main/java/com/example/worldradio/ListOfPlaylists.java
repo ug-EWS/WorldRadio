@@ -2,6 +2,7 @@ package com.example.worldradio;
 
 import androidx.annotation.NonNull;
 
+import java.text.Collator;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -13,19 +14,15 @@ public class ListOfPlaylists {
         playlists = new ArrayList<>();
     }
 
-    public ListOfPlaylists fromJson(String _json) {
+    public ListOfPlaylists fromJson(String _json, boolean isTempJson) {
         playlists = new ArrayList<>();
         ArrayList<String> list = Json.toList(_json);
 
         for (String i : list) {
-            playlists.add(new Playlist().fromJson(i));
+            playlists.add(new Playlist(i, isTempJson));
         }
 
         return this;
-    }
-
-    public void addPlaylist(String title) {
-        addPlaylist(new Playlist(title));
     }
 
     public void addPlaylist(Playlist p) {
@@ -41,14 +38,20 @@ public class ListOfPlaylists {
         return playlists.get(index);
     }
 
+    public int getPlaylistById(String id) {
+        for (int i = 0; i < playlists.size(); i++)
+            if (playlists.get(i).playlistId.equals(id)) return i;
+        return 0;
+    }
+
     public int getIndexOf(Playlist playlist) {
         return playlists.indexOf(playlist);
     }
 
-    public String getJson() {
+    public String getJson(boolean forTempJson) {
         ArrayList<String> list = new ArrayList<>();
         for (Playlist i : playlists) {
-            list.add(i.getJson());
+            list.add(i.getJson(forTempJson));
         }
         return Json.valueOf(list);
     }
@@ -95,7 +98,9 @@ public class ListOfPlaylists {
     }
 
     public void sortPlaylists() {
-        playlists.sort(Comparator.comparing(playlist -> playlist.title, Comparator.naturalOrder()));
+        Collator collator = Collator.getInstance();
+        collator.setStrength(Collator.SECONDARY);
+        playlists.sort(Comparator.comparing(playlist -> playlist.title, collator::compare));
     }
 
     public boolean isEmpty() {

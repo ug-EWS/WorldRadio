@@ -7,11 +7,9 @@ import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.Spinner;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AlertDialog;
@@ -20,13 +18,6 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
-import java.util.Locale;
-
-import de.sfuhrm.radiobrowser4j.ConnectionParams;
-import de.sfuhrm.radiobrowser4j.FieldName;
-import de.sfuhrm.radiobrowser4j.ListParameter;
-import de.sfuhrm.radiobrowser4j.RadioBrowser;
-import de.sfuhrm.radiobrowser4j.SearchMode;
 
 class RadioStationDialog implements RadioApi.RadioStationCallback {
     MainActivity activity;
@@ -70,7 +61,7 @@ class RadioStationDialog implements RadioApi.RadioStationCallback {
         searchButton.setOnClickListener(v -> search());
         searchResults = dialogView.findViewById(R.id.searchResults);
         searchResults.setLayoutManager(new LinearLayoutManager(activity));
-        info = dialogView.findViewById(R.id.info);
+        info = dialogView.findViewById(R.id.goToWebsite);
         queryWarning = dialogView.findViewById(R.id.warning);
         builder.setNegativeButton(R.string.dialog_button_cancel, null);
         builder.setOnDismissListener(dialog1 -> {

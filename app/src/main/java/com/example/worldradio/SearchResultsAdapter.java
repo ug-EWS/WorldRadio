@@ -33,7 +33,7 @@ class SearchResultsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         LayoutInflater inf = activity.getLayoutInflater();
-        View itemView = inf.inflate(R.layout.radio_item, parent, false);
+        View itemView = inf.inflate(R.layout.result_item, parent, false);
         return new RecyclerView.ViewHolder(itemView) {};
     }
 
@@ -44,15 +44,12 @@ class SearchResultsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
 
         ImageView thumbnail = itemView.findViewById(R.id.videoThumbnail);
         TextView title = itemView.findViewById(R.id.videoTitle);
-        ImageView options = itemView.findViewById(R.id.radioAddTo);
 
         setItemOnClickListener(itemView, pos);
         RadioStation station = resultPlaylist.getRadioStationAt(pos);
         title.setText(station.title);
         if (station.faviconUrl.isEmpty()) thumbnail.setImageResource(R.drawable.baseline_radio_24);
         else Glide.with(activity).load(station.faviconUrl).into(thumbnail);
-        options.setVisibility(View.GONE);
-        options.setOnClickListener(null);
     }
 
     @Override

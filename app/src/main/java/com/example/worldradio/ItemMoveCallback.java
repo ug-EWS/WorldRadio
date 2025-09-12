@@ -2,6 +2,8 @@ package com.example.worldradio;
 
 import android.content.Context;
 import android.graphics.Canvas;
+import android.graphics.Paint;
+import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.view.View;
 
@@ -13,9 +15,11 @@ import androidx.recyclerview.widget.RecyclerView;
 public class ItemMoveCallback extends ItemTouchHelper.Callback {
 
     private final ItemTouchHelperContract adapter;
+    private final Paint paint;
 
     ItemMoveCallback(ItemTouchHelperContract _adapter) {
         adapter = _adapter;
+        paint = new Paint();
     }
 
     @Override
@@ -49,7 +53,7 @@ public class ItemMoveCallback extends ItemTouchHelper.Callback {
 
     @Override
     public void onSelectedChanged(RecyclerView.ViewHolder viewHolder, int actionState) {
-        if (actionState != ItemTouchHelper.ACTION_STATE_IDLE)
+        if (actionState == ItemTouchHelper.ACTION_STATE_DRAG)
             adapter.onRowSelected(viewHolder);
         super.onSelectedChanged(viewHolder, actionState);
     }
@@ -62,8 +66,11 @@ public class ItemMoveCallback extends ItemTouchHelper.Callback {
 
     @Override
     public void onChildDraw(@NonNull Canvas c, @NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder, float dX, float dY, int actionState, boolean isCurrentlyActive) {
-        if (actionState == ItemTouchHelper.ACTION_STATE_SWIPE && dX != 0 && isCurrentlyActive) {
-            Drawable d = ContextCompat.getDrawable(adapter.getContext(), R.drawable.baseline_delete_forever_red_24);
+        if (actionState == ItemTouchHelper.ACTION_STATE_SWIPE && dX != 0) {
+            Drawable d = ContextCompat.getDrawable(adapter.getContext(),
+                    dX > 0 ? R.drawable.baseline_delete_forever_red_24
+                            : adapter.isPlaylistOpen() ? R.drawable.baseline_playlist_add_purple_24
+                            : R.drawable.baseline_share_24);
             if (d != null) {
                 View itemView = viewHolder.itemView;
                 int iconWidth = d.getIntrinsicWidth();
@@ -74,7 +81,13 @@ public class ItemMoveCallback extends ItemTouchHelper.Callback {
                 int margin = (int) ((Math.abs(dX) - iconWidth) / 2);
                 int iconLeft = dX > 0 ? itemView.getLeft() + margin : itemView.getRight() - margin - iconWidth;
                 int iconRight = dX > 0 ? itemView.getLeft() + margin + iconWidth : itemView.getRight() - margin;
+                int alpha = (int)((Math.abs(dX) / (itemView.getRight() - itemView.getLeft())) * 140);
+                int cX = (iconLeft + iconRight) / 2;
+                int cY = (iconTop + iconBottom) / 2;
                 d.setBounds(iconLeft, iconTop, iconRight, iconBottom);
+                paint.setARGB(alpha, dX > 0 ? 255 : 0, 0, dX > 0 ? 0 : 255);
+                c.drawRect(dX > 0 ? itemView.getLeft() : cX, cY - iconHeight, dX > 0 ? cX : itemView.getRight(), cY + iconHeight, paint);
+                c.drawArc(cX - iconHeight, cY - iconHeight, cX + iconHeight, cY + iconHeight, dX > 0 ? 270 : 90, 180, true, paint);
                 d.draw(c);
             }
         }
@@ -82,6 +95,7 @@ public class ItemMoveCallback extends ItemTouchHelper.Callback {
     }
 
     interface ItemTouchHelperContract {
+        boolean isPlaylistOpen();
         boolean isDragEnabled();
         boolean isSwipeEnabled();
         void onRowMoved(int fromPosition, int toPosition);

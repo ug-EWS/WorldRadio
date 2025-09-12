@@ -65,9 +65,12 @@
     <string name="merge">Merge</string>
     <string name="sort_playlists">Sort playlists</string>
     <string name="sort_videos">Sort radio stations</string>
-    <string name="multi_choose">%d item(s) selected</string>
-    <string name="multi_remove_title">Remove multiple items</string>
-    <string name="multi_remove_prompt">Remove %d items?</string>
+    <string name="multi_choose">%d list(s) selected</string>
+    <string name="multi_choose_station">%d station(s) selected</string>
+    <string name="multi_remove_title">Remove multiple lists</string>
+    <string name="multi_remove_station_title">Remove multiple stations</string>
+    <string name="multi_remove_prompt">Remove %d lists?</string>
+    <string name="multi_remove_station_prompt">Remove %d stations?</string>
     <string name="removed">Remove</string>
     <string name="merge_title">Merge</string>
     <string name="merge_message">Merge %d playlists?</string>

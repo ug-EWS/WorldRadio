@@ -56,7 +56,7 @@ public class PlaybackService extends Service {
     private ExoPlayer exoPlayer;
 
     private Playlist playlist;
-    private int currentRadioStationIndex;
+    private int playingRadioStationIndex;
     private boolean timerSet;
     private long timerMs;
     private boolean isPlaying = false;
@@ -191,8 +191,8 @@ public class PlaybackService extends Service {
                 String action = intent.getAction();
                 switch (action) {
                     case ACTION_START_SERVICE:
-                        playlist = new Playlist().fromJson(intent.getStringExtra("playlist"));
-                        currentRadioStationIndex = sp.getInt("currentVideoIndex", 0);
+                        playlist = new Playlist(intent.getStringExtra("playlist"), false);
+                        playingRadioStationIndex = sp.getInt("playingVideoIndex", 0);
                         timerSet = sp.getBoolean("timerSet", false);
                         timerMs = sp.getLong("timerMs", 0);
                         spe.putBoolean("serviceRunning", true).commit();
@@ -237,7 +237,7 @@ public class PlaybackService extends Service {
 
         Bitmap bitmap = null;
         try {
-            bitmap = Glide.with(this).asBitmap().load(playlist.getRadioStationAt(currentRadioStationIndex).faviconUrl).submit().get();
+            bitmap = Glide.with(this).asBitmap().load(playlist.getRadioStationAt(playingRadioStationIndex).faviconUrl).submit().get();
             mediaMetadata.putBitmap(MediaMetadata.METADATA_KEY_ART, bitmap);
             mediaSession.setMetadata(mediaMetadata.build());
         } catch (Exception e) {
@@ -247,7 +247,7 @@ public class PlaybackService extends Service {
             notification = new Notification.Builder(this, "def")
                     .setSmallIcon(R.drawable.baseline_radio_24)
                     .setTicker(getString(R.string.app_name))  // the status text
-                    .setContentTitle(playlist.getRadioStationAt(currentRadioStationIndex).title)  // the label of the entry
+                    .setContentTitle(playlist.getRadioStationAt(playingRadioStationIndex).title)  // the label of the entry
                     .setContentText(playlist.title)
                     .setShowWhen(false)
                     .setContentIntent(getPendingIntent())
@@ -261,7 +261,7 @@ public class PlaybackService extends Service {
             notification = new Notification.Builder(this, "def")
                     .setSmallIcon(R.drawable.baseline_radio_24)
                     .setTicker(getString(R.string.app_name))  // the status text
-                    .setContentTitle(playlist.getRadioStationAt(currentRadioStationIndex).title)  // the label of the entry
+                    .setContentTitle(playlist.getRadioStationAt(playingRadioStationIndex).title)  // the label of the entry
                     .setContentText(playlist.title)
                     .setShowWhen(false)
                     .setContentIntent(getPendingIntent())
@@ -328,23 +328,23 @@ public class PlaybackService extends Service {
     }
 
     private void playPrevious() {
-        currentRadioStationIndex = currentRadioStationIndex == 0 ? playlist.getLength() - 1 : currentRadioStationIndex - 1;
+        playingRadioStationIndex = playingRadioStationIndex == 0 ? playlist.getLength() - 1 : playingRadioStationIndex - 1;
         changeRadioStation();
     }
 
     private void playNext() {
-        currentRadioStationIndex = currentRadioStationIndex == playlist.getLength() - 1 ? 0 : currentRadioStationIndex + 1;
+        playingRadioStationIndex = playingRadioStationIndex == playlist.getLength() - 1 ? 0 : playingRadioStationIndex + 1;
         changeRadioStation();
     }
 
     @OptIn(markerClass = UnstableApi.class)
     private void changeRadioStation() {
-        RadioStation station = playlist.getRadioStationAt(currentRadioStationIndex);
+        RadioStation station = playlist.getRadioStationAt(playingRadioStationIndex);
         MediaItem mediaItem = new MediaItem.Builder().setUri(Uri.parse(station.url)).build();
         exoPlayer.setMediaItem(mediaItem);
         exoPlayer.prepare();
         exoPlayer.play();
-        spe.putInt("currentVideoIndex", currentRadioStationIndex).commit();
+        spe.putInt("playingVideoIndex", playingRadioStationIndex).commit();
         startForegroundService();
     }
 }

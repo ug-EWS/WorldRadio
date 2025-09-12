@@ -3,14 +3,17 @@ package com.example.worldradio;
 import static android.Manifest.permission.READ_EXTERNAL_STORAGE;
 import static android.content.pm.PackageManager.PERMISSION_DENIED;
 
+import android.app.PendingIntent;
 import android.app.UiModeManager;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.ShortcutInfo;
+import android.content.pm.ShortcutManager;
 import android.content.res.Configuration;
-import android.graphics.Color;
+import android.graphics.drawable.Icon;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -19,14 +22,8 @@ import android.os.PowerManager;
 import android.provider.Settings;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.transition.TransitionManager;
-import android.util.Log;
-import android.view.Gravity;
-import android.view.Menu;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.inputmethod.InputMethodManager;
-import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -38,15 +35,12 @@ import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.activity.OnBackPressedCallback;
-import androidx.activity.SystemBarStyle;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.appcompat.widget.PopupMenu;
-import androidx.cardview.widget.CardView;
 import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
@@ -59,11 +53,13 @@ import androidx.media3.exoplayer.ExoPlayer;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.transition.Transition;
+import androidx.transition.TransitionManager;
 
 import com.bumptech.glide.Glide;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.tabs.TabLayout;
-import com.google.android.material.transition.platform.MaterialSharedAxis;
+import com.google.android.material.transition.MaterialSharedAxis;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -74,16 +70,15 @@ import java.util.function.Supplier;
 
 public class MainActivity extends AppCompatActivity implements RadioApi.LopCallback {
     private CoordinatorLayout coordinatorLayout;
-    private LinearLayout list, toolbar, searchBar, startCancelTimerButton, mainScreen, layout;
+    private LinearLayout list, toolbar, searchBar, mainScreen, layout, musicController, recyclerLayout;
     private ScrollView settingsScreen;
     private ImageView icon, options, replayButton, playButton, forwardButton, musicIcon,
             selectAllButton, removeButton, addToPlaylistButton, mergeButton,  cancelSearchButton, findUpButton, findDownButton, searchButton;
     private TextView musicTitle, warningText;
-    private EditText searchEditText;
+    private EditText searchEditText, autoShutDownEditText;
     private FloatingActionButton addButton;
     private ProgressBar progressBar;
     private TabLayout tabLayout;
-    private CardView controllerCard;
     RecyclerView listOfPlaylistsRecycler, playlistRecycler;
     TextView titleText;
 
@@ -133,7 +128,7 @@ public class MainActivity extends AppCompatActivity implements RadioApi.LopCallb
         sp = getSharedPreferences("WorldRadio", MODE_PRIVATE);
         spe = sp.edit();
 
-        listOfPlaylists = new ListOfPlaylists().fromJson(sp.getString("playlists", "[]"));
+        listOfPlaylists = new ListOfPlaylists().fromJson(sp.getString("playlists", "[]"), false);
         countriesLop = new ListOfPlaylists();
         languagesLop = new ListOfPlaylists();
         topsLop = new ListOfPlaylists();
@@ -175,6 +170,7 @@ public class MainActivity extends AppCompatActivity implements RadioApi.LopCallb
         });
 
         activityResultLauncher = getActivityResultLauncher();
+        initializeFromIntent();
     }
 
     private void back() {
@@ -196,6 +192,10 @@ public class MainActivity extends AppCompatActivity implements RadioApi.LopCallb
     @Override
     protected void onStart() {
         super.onStart();
+        checkBatteryOptimizationSettings();
+    }
+
+    private void initializeFromIntent() {
         Intent intent = getIntent();
         if (Objects.equals(intent.getAction(), Intent.ACTION_VIEW) && intent.getData() != null) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
@@ -217,7 +217,13 @@ public class MainActivity extends AppCompatActivity implements RadioApi.LopCallb
             if (cpi != -1) openPlaylist(cpi);
             spe.putBoolean("changing", false);
         }
-        checkBatteryOptimizationSettings();
+
+        if (Objects.equals(intent.getAction(), "com.opl.ACTION_START_PLAYLIST")) {
+            openPlaylist(listOfPlaylists.getPlaylistById(intent.getStringExtra("playlistId")));
+            if (!currentPlaylist.isEmpty())
+                playRadioStation(0, true, true);
+        }
+
     }
 
     private void checkBatteryOptimizationSettings() {
@@ -252,7 +258,7 @@ public class MainActivity extends AppCompatActivity implements RadioApi.LopCallb
                 , (result) -> {
             if (result.getResultCode() == RESULT_OK) {
                 Uri uri = result.getData().getData();
-                OnlinePlaylistsUtils.writeFile(context, uri, sharedPlaylist.getJson());
+                OnlinePlaylistsUtils.writeFile(context, uri, sharedPlaylist.getJson(false));
                 startActivity(Intent.createChooser(OnlinePlaylistsUtils.getShareIntent(uri), getString(R.string.share)));
             }
                 });
@@ -279,7 +285,9 @@ public class MainActivity extends AppCompatActivity implements RadioApi.LopCallb
                 exoPlayer.pause();
                 timerSet = false;
                 setTimer();
-                if (playingLopIndex == 0) startPlaybackService();
+                startPlaybackService();
+            } else {
+                spe.putBoolean("serviceRunning", false).commit();
             }
         }
         super.onPause();
@@ -294,10 +302,14 @@ public class MainActivity extends AppCompatActivity implements RadioApi.LopCallb
     private void startPlaybackService() {
         Intent intent = new Intent(MainActivity.this, PlaybackService.class);
         intent.setAction("com.opl.ACTION_START_SERVICE");
-        intent.putExtra("playlist", playingPlaylist.getJson());
-        spe.putInt("currentPlaylistIndex", playingPlaylistIndex)
-                .putInt("currentVideoIndex", playingRadioStationIndex)
-                .commit();
+        intent.putExtra("playlist", playingPlaylist.getJson(false));
+        spe.putInt("playingPlaylistIndex", playingPlaylistIndex)
+                .putInt("playingVideoIndex", playingRadioStationIndex)
+                .putInt("playingLopIndex", playingLopIndex);
+        if (playingLopIndex != 0) spe.putString("tempJson",
+                (playingLopIndex == 1 ? topsLop : playingLopIndex == 2 ? countriesLop : playingLopIndex == 3 ? languagesLop : tagsLop)
+                        .getJson(true));
+        spe.commit();
         startService(intent);
     }
 
@@ -307,11 +319,19 @@ public class MainActivity extends AppCompatActivity implements RadioApi.LopCallb
 
     private void continuePlayback() {
         stopPlaybackService();
-        int cpi = sp.getInt("currentPlaylistIndex", -1);
-        int cvi = sp.getInt("currentVideoIndex", -1);
+        int cli = sp.getInt("playingLopIndex", 0);
+        int cpi = sp.getInt("playingPlaylistIndex", -1);
+        int cvi = sp.getInt("playingVideoIndex", -1);
         boolean play = sp.getBoolean("playing", true);
-        openPlaylist(cpi, cvi);
-        playRadioStation(cvi, true, play);
+        if (cli != 0) {
+            String tempJson = sp.getString("tempJson", "");
+            openListOfPlaylists(cli, tempJson);
+            tabLayout.selectTab(tabLayout.getTabAt(cli));
+        }
+        if (currentLop.getLength() > cpi) {
+            openPlaylist(cpi, cvi);
+            playRadioStation(cvi, true, play);
+        }
         spe.putBoolean("serviceRunning", false);
     }
 
@@ -328,6 +348,7 @@ public class MainActivity extends AppCompatActivity implements RadioApi.LopCallb
                 handler = new Handler(getMainLooper());
                 handler.postDelayed(() -> {
                     exoPlayer.pause();
+                    autoShutDownEditText.setText("");
                     timerSet = false;
                 }, afterMillis);
             } else {
@@ -345,6 +366,7 @@ public class MainActivity extends AppCompatActivity implements RadioApi.LopCallb
         list = findViewById(R.id.list);
         mainScreen = findViewById(R.id.mainScreen);
         settingsScreen = findViewById(R.id.settingsScreen);
+        recyclerLayout = findViewById(R.id.recyclerLayout);
         icon = findViewById(R.id.icon);
         titleText = findViewById(R.id.titleText);
         addButton = findViewById(R.id.addButton);
@@ -413,7 +435,7 @@ public class MainActivity extends AppCompatActivity implements RadioApi.LopCallb
         tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
             @Override
             public void onTabSelected(TabLayout.Tab tab) {
-                openListOfPlaylists(tab.getPosition());
+                openListOfPlaylists(tab.getPosition(), null);
             }
 
             @Override
@@ -427,13 +449,14 @@ public class MainActivity extends AppCompatActivity implements RadioApi.LopCallb
             }
         });
 
-        controllerCard = findViewById(R.id.controllerCard);
+        musicController = findViewById(R.id.musicController);
+
+        autoShutDownEditText = findViewById(R.id.autoShutDownEditText);
 
         ViewCompat.setOnApplyWindowInsetsListener(coordinatorLayout, (v, insets) -> {
             Insets insets1 = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             Insets insets2 = insets.getInsets(WindowInsetsCompat.Type.ime());
-            int bottom = Build.VERSION.SDK_INT >= 35 ? insets2.bottom : 0;
-            v.setPadding(insets1.left, insets1.top, insets1.right, bottom);
+            v.setPadding(insets1.left, insets1.top, insets1.right, insets2.bottom);
             warningText.setPadding(0, 0, 0, insets1.bottom);
             return insets;
         });
@@ -461,7 +484,7 @@ public class MainActivity extends AppCompatActivity implements RadioApi.LopCallb
         setSettingsOpen(false);
         setViewMode(false);
         setControllerVisibility(false);
-        openListOfPlaylists(0);
+        openListOfPlaylists(0, null);
     }
 
     @NonNull PopupMenu getListOfPlaylistsPopupMenu() {
@@ -490,7 +513,8 @@ public class MainActivity extends AppCompatActivity implements RadioApi.LopCallb
         menu.getMenu().getItem(0).setVisible(!current);
         menu.getMenu().getItem(1).setVisible(!current);
         menu.getMenu().getItem(2).setVisible(current);
-        menu.getMenu().getItem(6).setVisible(current);
+        menu.getMenu().getItem(7).setVisible(current);
+        menu.getMenu().getItem(5).setEnabled(!forPlaylist.playlistId.isEmpty());
         if (current) menu.getMenu().getItem(2).setEnabled(!currentPlaylist.isEmpty());
         menu.setOnMenuItemClickListener(item -> {
             int itemIndex = item.getItemId();
@@ -514,7 +538,12 @@ public class MainActivity extends AppCompatActivity implements RadioApi.LopCallb
                 sharePlaylist(forPlaylist);
                 return true;
             }
+            if (itemIndex == R.id.addToHome) {
+                addPlaylistToHome(forPlaylist);
+                return true;
+            }
             if (itemIndex == R.id.delete) {
+                disableShortcutOfPlaylist(forPlaylist.playlistId);
                 removePlaylist(index);
                 return true;
             }
@@ -534,6 +563,7 @@ public class MainActivity extends AppCompatActivity implements RadioApi.LopCallb
                 R.string.delete_playlist_alert,
                 R.string.dialog_button_delete,
                 (dialog, which) -> {
+                    disableShortcutOfPlaylist(listOfPlaylists.getPlaylistAt(index).playlistId);
                     listOfPlaylists.removePlaylist(index);
                     listOfPlaylistsAdapter.removeItem(index);
                     updateNoItemsView();
@@ -547,6 +577,10 @@ public class MainActivity extends AppCompatActivity implements RadioApi.LopCallb
         PopupMenu menu = new PopupMenu(context, anchor);
         RadioStation forRadioStation = currentPlaylist.getRadioStationAt(index);
         menu.inflate(R.menu.video_options);
+        menu.getMenu().findItem(R.id.addToTop).setVisible(currentLopIndex == 0);
+        menu.getMenu().findItem(R.id.addToBottom).setVisible(currentLopIndex == 0);
+        menu.getMenu().findItem(R.id.delete).setVisible(currentLopIndex == 0);
+        menu.getMenu().findItem(R.id.goToWebsite).setEnabled(!forRadioStation.homepage.isEmpty());
         menu.setOnMenuItemClickListener(item -> {
             int itemIndex = item.getItemId();
             if (itemIndex == R.id.addToTop) {
@@ -564,8 +598,12 @@ public class MainActivity extends AppCompatActivity implements RadioApi.LopCallb
                 removeRadioStation(index);
                 return true;
             }
-            if (itemIndex == R.id.info) {
-                showInfo(forRadioStation);
+            if (itemIndex == R.id.goToWebsite) {
+                startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(forRadioStation.homepage)));
+                return true;
+            }
+            if (itemIndex == R.id.copyUrl) {
+                copyToClipboard(forRadioStation.url);
                 return true;
             }
             return false;
@@ -591,11 +629,11 @@ public class MainActivity extends AppCompatActivity implements RadioApi.LopCallb
 
     private void initializeSettingsScreen() {
         RadioGroup themesButton = findViewById(R.id.themesButton);
-        EditText autoShutDownEditText = findViewById(R.id.autoShutDownEditText);
         TextView timerStartText = findViewById(R.id.timerStartText);
-        startCancelTimerButton = findViewById(R.id.startCancelTimerButton);
+        ImageView timerStartIcon = findViewById(R.id.timerStartIcon);
+        TextView minutesTextView = findViewById(R.id.minutesTextView);
+        LinearLayout startCancelTimerButton = findViewById(R.id.startCancelTimerButton);
         List<Integer> themeButtons = List.of(R.id.light, R.id.dark, R.id.auto);
-
 
         themesButton.check(themeButtons.get(theme - 1 < 0 ? 2 : theme - 1));
 
@@ -606,13 +644,18 @@ public class MainActivity extends AppCompatActivity implements RadioApi.LopCallb
                 showMessage(R.string.timer_disabled);
             } else {
                 String text = autoShutDownEditText.getText().toString();
-                if (text.isEmpty()) text = autoShutDownEditText.getHint().toString();
+                if (text.isEmpty()) {
+                    autoShutDownEditText.setText(autoShutDownEditText.getHint().toString());
+                    text = autoShutDownEditText.getText().toString();
+                }
                 int minutes = Integer.parseInt(text);
                 if (minutes > 0) startTimer(minutes * 60000L);
                 showMessage(String.format(getString(R.string.timer_set), minutes));
             }
             autoShutDownEditText.setEnabled(!timerSet);
             timerStartText.setText(timerSet ? R.string.cancel_timer : R.string.start_timer);
+            timerStartIcon.setImageResource(timerSet ? R.drawable.baseline_pause_24 : R.drawable.baseline_play_arrow_24);
+            minutesTextView.setText(timerSet ? "dakika kaldı" : "dakika");
         });
 
         themesButton.setOnCheckedChangeListener((group, checkedId) ->
@@ -626,12 +669,12 @@ public class MainActivity extends AppCompatActivity implements RadioApi.LopCallb
                 .putLong("timerMs", timerMs)
                 .putInt("theme", theme)
                 .commit();
-        spe.putString("playlists", listOfPlaylists.getJson()).apply();
+        spe.putString("playlists", listOfPlaylists.getJson(false)).apply();
     }
 
     private void importPlaylist(Uri uri) {
         try {
-            listOfPlaylists.addPlaylist(new Playlist().fromJson(OnlinePlaylistsUtils.readFile(this, uri)));
+            listOfPlaylists.addPlaylist(new Playlist(OnlinePlaylistsUtils.readFile(this, uri), false));
             showMessage(getString(R.string.import_success));
             listOfPlaylistsRecycler.scrollToPosition(0);
             listOfPlaylistsAdapter.notifyItemInserted(0);
@@ -642,13 +685,13 @@ public class MainActivity extends AppCompatActivity implements RadioApi.LopCallb
         }
     }
 
-    private void sharePlaylist(Playlist playlist) {
+    public void sharePlaylist(Playlist playlist) {
         sharedPlaylist = playlist;
         String fileName = playlist.title.replace("/", "_").concat(".json");
         activityResultLauncher.launch(OnlinePlaylistsUtils.getCreateIntent(fileName));
     }
 
-    void openListOfPlaylists(int index) {
+    void openListOfPlaylists(int index, String fillJson) {
         currentLopIndex = index; // Custom, Top, Countries, Languages, Tags
         switch (currentLopIndex) {
             case 0: currentLop = listOfPlaylists; break;
@@ -659,6 +702,7 @@ public class MainActivity extends AppCompatActivity implements RadioApi.LopCallb
             default: break;
         }
         setViewMode(false);
+        if (currentLopIndex != 0 && fillJson != null) currentLop.fromJson(fillJson, true);
         if (currentLopIndex != 0 && currentLop.isEmpty()) radioApi.getListOfPlaylists(currentLopIndex);
     }
 
@@ -716,7 +760,7 @@ public class MainActivity extends AppCompatActivity implements RadioApi.LopCallb
 
         String favicon = playingRadioStation.faviconUrl;
         if (favicon.isEmpty()) musicIcon.setImageResource(R.drawable.baseline_radio_24);
-        else Glide.with(this).load(favicon).into(musicIcon);
+        else Glide.with(this).load(favicon).placeholder(R.drawable.baseline_radio_24).into(musicIcon);
         musicTitle.setText(playingRadioStation.title);
         setControllerVisibility(true);
 
@@ -744,23 +788,6 @@ public class MainActivity extends AppCompatActivity implements RadioApi.LopCallb
         else exoPlayer.play();
     }
 
-    private void showInfo(RadioStation _station) {
-        AlertDialog.Builder b = new AlertDialog.Builder(this, R.style.Theme_OnlinePlaylistsDialogDark);
-        b.setTitle(_station.title);
-        CharSequence[] options = {
-                getString(R.string.copy_stream_url),
-                getString(R.string.copy_favicon_url),
-                getString(R.string.copy_station_uuid)};
-        b.setItems(options, (dialog, which) -> {
-            if (which == 0) copyToClipboard(_station.url);
-            if (which == 1) copyToClipboard(_station.faviconUrl);
-            if (which == 2) copyToClipboard(_station.id);
-            showMessage(R.string.copied);
-        });
-        b.setPositiveButton(R.string.dialog_button_cancel, (dialog, which) -> dialog.dismiss());
-        b.create().show();
-    }
-
     private void controllerPrevious() {
         int index = playingRadioStationIndex == 0 ? playingPlaylist.getLength() - 1 : playingRadioStationIndex - 1;
         playRadioStation(index, false, true);
@@ -769,6 +796,56 @@ public class MainActivity extends AppCompatActivity implements RadioApi.LopCallb
     private void controllerNext() {
         int index = playingRadioStationIndex == playingPlaylist.getLength() - 1 ? 0 : playingRadioStationIndex + 1;
         playRadioStation(index, false, true);
+    }
+
+    private void addPlaylistToHome(Playlist playlist) {
+        ShortcutManager shortcutManager = getSystemService(ShortcutManager.class);
+        if (shortcutManager.isRequestPinShortcutSupported()) {
+            ShortcutInfo shortcutInfo = new ShortcutInfo.Builder(this, playlist.playlistId)
+                    .setShortLabel(playlist.title)
+                    .setIcon(Icon.createWithResource(this,
+                            List.of(R.drawable.ic_launcher_1,
+                                    R.drawable.ic_launcher_2,
+                                    R.drawable.ic_launcher_3,
+                                    R.drawable.ic_launcher_4,
+                                    R.drawable.ic_launcher_5).get(playlist.icon)))
+                    .setIntent(new Intent("com.opl.ACTION_START_PLAYLIST")
+                            .setClass(getApplicationContext(), MainActivity.class)
+                            .putExtra("playlistId", playlist.playlistId))
+                    .build();
+            Intent intent = shortcutManager.createShortcutResultIntent(shortcutInfo);
+            PendingIntent pendingIntent = PendingIntent.getBroadcast(getBaseContext(), 0, intent, PendingIntent.FLAG_IMMUTABLE);
+            shortcutManager.requestPinShortcut(shortcutInfo, pendingIntent.getIntentSender());
+        } else {
+            showMessage("Eklenemedi.");
+        }
+
+    }
+
+    public void updateShortcutOfPlaylist(Playlist playlist) {
+        ShortcutManager shortcutManager = getSystemService(ShortcutManager.class);
+        List<ShortcutInfo> infos = shortcutManager.getPinnedShortcuts();
+        for (ShortcutInfo i : infos)
+            if (i.getId().equals(playlist.playlistId)) {
+                shortcutManager.updateShortcuts(List.of(new ShortcutInfo.Builder(this, playlist.playlistId)
+                        .setShortLabel(playlist.title)
+                        .setIcon(Icon.createWithResource(this,
+                                List.of(R.drawable.ic_launcher_1,
+                                        R.drawable.ic_launcher_2,
+                                        R.drawable.ic_launcher_3,
+                                        R.drawable.ic_launcher_4,
+                                        R.drawable.ic_launcher_5).get(playlist.icon)))
+                        .setIntent(new Intent("com.opl.ACTION_START_PLAYLIST")
+                                .setClass(getApplicationContext(), MainActivity.class)
+                                .putExtra("playlistId", playlist.playlistId))
+                        .build()));
+                break;
+            }
+    }
+
+    public void disableShortcutOfPlaylist(String playlistId) {
+        ShortcutManager shortcutManager = getSystemService(ShortcutManager.class);
+        shortcutManager.disableShortcuts(List.of(playlistId));
     }
 
     void closePlayer() {
@@ -791,8 +868,9 @@ public class MainActivity extends AppCompatActivity implements RadioApi.LopCallb
     }
 
     private void setViewMode(boolean _openPlaylist) {
-        if (_openPlaylist != playlistOpen) {
-            playlistOpen = _openPlaylist;
+        boolean viewModeChanged = _openPlaylist != playlistOpen;
+        playlistOpen = _openPlaylist;
+        if (viewModeChanged) {
             icon.setImageResource(playlistOpen ? R.drawable.baseline_arrow_back_24 : R.drawable.baseline_radio_24);
             icon.setClickable(playlistOpen);
         }
@@ -813,6 +891,9 @@ public class MainActivity extends AppCompatActivity implements RadioApi.LopCallb
             } else {
                 listOfPlaylistsAdapter.notifyDataSetChanged();
             }
+            listOfPlaylistsRecycler.scrollToPosition(playingLopIndex == currentLopIndex ? playingPlaylistIndex
+                    : currentPlaylistIndex == -1 ? 0
+                    : currentPlaylistIndex);
             currentPlaylistIndex = -1;
         }
 
@@ -822,11 +903,19 @@ public class MainActivity extends AppCompatActivity implements RadioApi.LopCallb
 
     private void setSettingsOpen(boolean _settingsOpen) {
         settingsOpen = _settingsOpen;
-        TransitionManager.beginDelayedTransition(list, new MaterialSharedAxis(MaterialSharedAxis.X, settingsOpen));
+        TransitionManager.beginDelayedTransition(list, new com.google.android.material.transition.MaterialSharedAxis(MaterialSharedAxis.X, settingsOpen));
         if (settingsOpen && !settingsInitialized) initializeSettingsScreen();
         mainScreen.setVisibility(settingsOpen ? View.GONE : View.VISIBLE);
         settingsScreen.setVisibility(settingsOpen ? View.VISIBLE : View.GONE);
         updateToolbar();
+
+        if (settingsOpen && timerSet) {
+            double currentTime = Calendar.getInstance().getTimeInMillis();
+            int minutes = (int) Math.ceil((timerMs - currentTime) / 60000);
+            autoShutDownEditText.setText(String.valueOf(minutes));
+        }
+
+        OnlinePlaylistsUtils.hideKeyboard(this, settingsOpen ? autoShutDownEditText : searchEditText);
     }
 
     void setSelectionMode(boolean _selectionMode) {
@@ -854,12 +943,13 @@ public class MainActivity extends AppCompatActivity implements RadioApi.LopCallb
     void updateToolbar() {
         boolean openAndEmpty = false;
         if (playlistOpen && currentPlaylist != null) if (currentPlaylist.isEmpty()) openAndEmpty = true;
+        if (!playlistOpen && currentLop != null) if (currentLop.isEmpty()) openAndEmpty = true;
         toolbar.setVisibility(searchMode ? View.GONE : View.VISIBLE);
         searchBar.setVisibility(searchMode ? View.VISIBLE : View.GONE);
         titleText.setText(
                 listSortMode && playlistOpen ? getString(R.string.sort_videos)
                         : listSortMode ? getString(R.string.sort_playlists)
-                        : selectionMode ? String.format(getString(R.string.multi_choose), selectedItems.size())
+                        : selectionMode ? String.format(getString(playlistOpen ? R.string.multi_choose_station : R.string.multi_choose), selectedItems.size())
                         : settingsOpen ? getString(R.string.settings)
                         : playlistOpen ? currentPlaylist.title
                         : getString(R.string.app_name));
@@ -879,19 +969,14 @@ public class MainActivity extends AppCompatActivity implements RadioApi.LopCallb
     }
 
     void updateNoItemsView() {
-        listOfPlaylistsRecycler.setVisibility(View.GONE);
-        playlistRecycler.setVisibility(View.GONE);
-        warningText.setVisibility(View.GONE);
         String message = "";
 
         boolean showWarning = true;
-        boolean isCurrentPlaylistNull = currentPlaylist == null;
-        boolean isCurrentPlaylistEmpty = !isCurrentPlaylistNull && currentPlaylist.getLength() == 0;
-        boolean isCurrentPlaylistLoading = !isCurrentPlaylistNull && currentPlaylist.isEmpty();
-        boolean isCurrentLopNullOrEmpty = currentLop == null;
-        isCurrentLopNullOrEmpty = !isCurrentLopNullOrEmpty && currentLop.isEmpty();
 
         if (playlistOpen) {
+            boolean isCurrentPlaylistNull = currentPlaylist == null;
+            boolean isCurrentPlaylistEmpty = !isCurrentPlaylistNull && currentPlaylist.getLength() == 0;
+            boolean isCurrentPlaylistLoading = !isCurrentPlaylistNull && currentPlaylist.isEmpty();
             if (isCurrentPlaylistEmpty) {
                 message = getString(R.string.no_videos); // length = 0
             } else if (isCurrentPlaylistLoading) {
@@ -900,6 +985,8 @@ public class MainActivity extends AppCompatActivity implements RadioApi.LopCallb
                 showWarning = false;
             }
         } else {
+            boolean isCurrentLopNullOrEmpty = currentLop == null;
+            isCurrentLopNullOrEmpty = !isCurrentLopNullOrEmpty && currentLop.isEmpty();
             if (isCurrentLopNullOrEmpty) {
                 if (currentLopIndex == 0) {
                     message = getString(R.string.no_playlists);
@@ -911,19 +998,21 @@ public class MainActivity extends AppCompatActivity implements RadioApi.LopCallb
             }
         }
 
-        if (showWarning) {
-            warningText.setText(message);
-            warningText.setVisibility(View.VISIBLE);
-        } else {
-            (playlistOpen ? playlistRecycler : listOfPlaylistsRecycler).setVisibility(View.VISIBLE);
-        }
+        View view = showWarning ? warningText : playlistOpen ? playlistRecycler : listOfPlaylistsRecycler;
+
+        listOfPlaylistsRecycler.setVisibility(View.GONE);
+        playlistRecycler.setVisibility(View.GONE);
+        warningText.setVisibility(View.GONE);
+        view.setVisibility(View.VISIBLE);
+        warningText.setText(message);
     }
 
     private void setControllerVisibility(boolean visible) {
-        if (!(visible && (controllerCard.getVisibility() == View.VISIBLE))) {
+        if (!(visible && (musicController.getVisibility() == View.VISIBLE))) {
             TransitionManager.beginDelayedTransition(layout);
-            controllerCard.setVisibility(visible ? View.VISIBLE : View.GONE);
+            musicController.setVisibility(visible ? View.VISIBLE : View.GONE);
         }
+        titleText.setSelected(true);
     }
 
     private void selectAllItems() {
@@ -942,8 +1031,8 @@ public class MainActivity extends AppCompatActivity implements RadioApi.LopCallb
             if (playlistOpen) removeRadioStation(index); else removePlaylist(index);
         } else OnlinePlaylistsUtils.showMessageDialog(
                 context,
-                R.string.multi_remove_title,
-                String.format(getString(R.string.multi_remove_prompt), selectedItems.size()),
+                playlistOpen ? R.string.multi_remove_station_title : R.string.multi_remove_title,
+                String.format(getString(playlistOpen ? R.string.multi_remove_station_prompt : R.string.multi_remove_prompt), selectedItems.size()),
                 R.string.dialog_button_delete,
                 (dialog, which) -> {
                     if (playlistOpen) {
@@ -952,6 +1041,7 @@ public class MainActivity extends AppCompatActivity implements RadioApi.LopCallb
                         if (currentPlaylistIndex == playingPlaylistIndex) playingRadioStationIndex = currentPlaylist.getIndexOf(playingRadioStation);
                     }
                     else {
+                        for (Integer i : selectedItems) disableShortcutOfPlaylist(listOfPlaylists.getPlaylistAt(i).playlistId);
                         listOfPlaylists.removePlaylists(selectedItems);
                         if (selectedItems.contains(playingPlaylistIndex)) closePlayer();
                         if (playingPlaylistIndex != -1) playingPlaylistIndex = listOfPlaylists.getIndexOf(playingPlaylist);

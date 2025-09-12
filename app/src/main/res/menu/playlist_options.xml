@@ -25,6 +25,9 @@
             android:layout_height="wrap_content"
             android:title="@string/share" />
         <item
+            android:id="@+id/addToHome"
+            android:title="Ana ekrana ekle" />
+        <item
             android:id="@+id/delete"
             android:title="@string/delete" />
         <item

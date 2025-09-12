@@ -19,6 +19,7 @@ public class RadioApi {
     public RadioStationCallback rsc;
     public LopCallback loc;
     private RadioBrowser rb;
+    private int currentId;
 
     RadioApi(RadioStationCallback _rsc) {
         rsc = _rsc;
@@ -31,76 +32,82 @@ public class RadioApi {
     public void getRadioStations(String name) {
         if (rsc != null)
             new Thread(() -> {
+                currentId++;
+                int id = currentId;
                 Playlist resultPlaylist = new Playlist();
-                    try {
-                        if (rb == null) rb = getRadioBrowser();
-                        rb.listStationsBy(SearchMode.BYNAME, name, ListParameter.create().order(FieldName.NAME))
-                                .forEach(station -> resultPlaylist.addRadioStationToEnd(
-                                        new RadioStation(station.getName(),
-                                                station.getStationUUID().toString(),
-                                                station.getUrlResolved(),
-                                                station.getFavicon(),
-                                                station.getHls())));
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                rsc.onGotRadioStations(resultPlaylist);
+                try {
+                    if (rb == null) rb = getRadioBrowser();
+                    rb.listStationsBy(SearchMode.BYNAME, name, ListParameter.create().order(FieldName.NAME))
+                            .forEach(station -> resultPlaylist.addRadioStationToEnd(
+                                    new RadioStation(station.getName(),
+                                            station.getStationUUID().toString(),
+                                            station.getUrlResolved(),
+                                            station.getFavicon(),
+                                            station.getHls(),
+                                            station.getHomepage(),
+                                            "")));
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                if (id == currentId) rsc.onGotRadioStations(resultPlaylist);
             }).start();
     }
 
     public void getRadioStations(Playlist playlist) {
         if (loc != null)
             new Thread(() -> {
+                currentId++;
+                int id = currentId;
                 try {
                     if (rb == null) rb = getRadioBrowser();
                     int type = playlist.type;
                     String name = type == 2 ? playlist.countryCode : playlist.title;
-                    if (type == 1 || type == 6) {
-                        List<Station> list = type == 1 ? rb.listTopClickStations(Limit.of(20)) : rb.listTopVoteStations(Limit.of(20));
+                    if (type == 1 || type == 6 || type == 7 || type == 8) {
+                        List<Station> list = type == 1 ? rb.listTopClickStations(Limit.of(20))
+                                : type == 6 ? rb.listTopVoteStations(Limit.of(20))
+                                : type == 7 ? rb.listLastChangedStations(Limit.of(20))
+                                : rb.listLastClickStations(Limit.of(20));
                         list.forEach(station -> playlist.addRadioStationToEnd(
                                     new RadioStation(station.getName(),
                                             station.getStationUUID().toString(),
                                             station.getUrlResolved(),
                                             station.getFavicon(),
-                                            station.getHls()
+                                            station.getHls(),
+                                            station.getHomepage(),
+                                            type == 1 ? String.valueOf(station.getClicktrend()) : ""
                                     )));
                     }
                     else {
-                        SearchMode sm;
-                        switch (type) {
-                            case 2:
-                                sm = SearchMode.BYCOUNTRYCODEEXACT;
-                                break;
-                            case 3:
-                                sm = SearchMode.BYLANGUAGEEXACT;
-                                break;
-                            default:
-                                sm = SearchMode.BYTAGEXACT;
-                                break;
-                        }
+                        SearchMode sm = type == 2 ? SearchMode.BYCOUNTRYCODEEXACT : type == 3 ? SearchMode.BYLANGUAGEEXACT : SearchMode.BYTAGEXACT;
                         rb.listStationsBy(sm, name, ListParameter.create().order(FieldName.NAME))
                                 .forEach(station -> playlist.addRadioStationToEnd(
                                         new RadioStation(station.getName(),
                                                 station.getStationUUID().toString(),
                                                 station.getUrlResolved(),
                                                 station.getFavicon(),
-                                                station.getHls()
+                                                station.getHls(),
+                                                station.getHomepage(),
+                                                ""
                                         )));
                     }
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
-                loc.onGotRadioStations(playlist);
+                if (id == currentId) loc.onGotRadioStations(playlist);
             }).start();
     }
 
     public void getListOfPlaylists(int type) {
         if (loc != null)
             new Thread(() -> {
+                currentId++;
+                int id = currentId;
                 ListOfPlaylists lop = new ListOfPlaylists();
                 if (rb == null) rb = getRadioBrowser();
                 switch (type) {
                     case 1:
+                        lop.addPlaylist(new Playlist("Dünyada şu an dinlenenler", 8, 20, null));
+                        lop.addPlaylist(new Playlist("En son eklenenler", 7, 20, null));
                         lop.addPlaylist(new Playlist(loc.getStringById(R.string.most_liked), 6, 20, null));
                         lop.addPlaylist(new Playlist(loc.getStringById(R.string.world_top_20), 1, 20, null));
                         break;
@@ -137,7 +144,7 @@ public class RadioApi {
                     default:
                         break;
                 }
-                loc.onGotListOfPlaylists(lop, type);
+                if (id == currentId) loc.onGotListOfPlaylists(lop, type);
             }).start();
     }
 

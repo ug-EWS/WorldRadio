@@ -1,26 +1,21 @@
 package com.example.worldradio;
 
-
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 
 public class Playlist {
-    public String title, countryCode;
+    public String title, countryCode, playlistId;
     public int icon, type, length;
     private ArrayList<RadioStation> radioStations;
 
+    private static long currentMillis;
+    private static int idCounter;
+
     Playlist() {
         title = "";
-        icon = 0;
-        type = 0;
-        length = 0;
-        radioStations = new ArrayList<>();
-    }
-
-    Playlist(String _title) {
-        title = _title;
         icon = 0;
         type = 0;
         length = 0;
@@ -33,6 +28,7 @@ public class Playlist {
         type = 0;
         length = 0;
         radioStations = new ArrayList<>();
+        playlistId = generateId();
     }
 
     Playlist(String _title, int _type, int _length, String _countryCode) {
@@ -44,7 +40,7 @@ public class Playlist {
         radioStations = new ArrayList<>();
     }
 
-    public Playlist fromJson (String _json) {
+    Playlist (String _json, boolean isTempJson) {
         HashMap<String, Object> map = Json.toMap(_json);
         title = (String) map.get("title");
         icon = map.containsKey("icon") ? Integer.parseInt((String) map.get("icon")) : R.drawable.baseline_featured_play_list_24;
@@ -52,11 +48,29 @@ public class Playlist {
         RadioStation ytv;
         radioStations = new ArrayList<>();
         for (String i: sourceList) {
-            ytv = new RadioStation().fromJson(i);
+            ytv = new RadioStation().fromJson(i, isTempJson);
             radioStations.add(ytv);
         }
+        if (isTempJson) {
+            countryCode = (String) map.get("countryCode");
+            type = map.containsKey("type") ? Integer.parseInt((String) map.get("type")) : 0;
+            length = map.containsKey("length") ? Integer.parseInt((String) map.get("length")) : 0;
+        } else {
+            playlistId = (String) map.getOrDefault("playlistId", generateId());
+        }
+    }
 
-        return this;
+    private static String generateId() {
+        Calendar calendar = Calendar.getInstance();
+        long millis = calendar.getTimeInMillis();
+        if (millis == currentMillis) {
+            idCounter++;
+            return String.valueOf(millis).concat("-").concat(String.valueOf(idCounter));
+        } else {
+            currentMillis = millis;
+            idCounter = 0;
+            return String.valueOf(millis);
+        }
     }
 
     public void addRadioStation(RadioStation _station) {
@@ -118,13 +132,20 @@ public class Playlist {
 
     public int getLength() {return length == 0 ? radioStations.size() : length;}
 
-    public String getJson(){
+    public String getJson(boolean forTempJson) {
         HashMap<String, Object> map = new HashMap<>();
         ArrayList<String> list = new ArrayList<>();
-        for (RadioStation i : radioStations) list.add(i.getJson());
+        for (RadioStation i : radioStations) list.add(i.getJson(forTempJson));
         map.put("title", title);
         map.put("icon", String.valueOf(icon));
         map.put("radioStations", Json.valueOf(list));
+        if (forTempJson) {
+            map.put("countryCode", countryCode);
+            map.put("type", String.valueOf(type));
+            map.put("length", String.valueOf(length));
+        } else {
+            map.put("playlistId", playlistId);
+        }
         return Json.valueOf(map);
     }
 }

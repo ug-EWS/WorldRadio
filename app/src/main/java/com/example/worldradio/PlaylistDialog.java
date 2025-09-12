@@ -17,6 +17,7 @@ class PlaylistDialog {
     MainActivity activity;
     AlertDialog.Builder builder;
     AlertDialog dialog;
+    ManagePlaylistsDialog managePlaylistsDialog;
     View dialogView;
     EditText editText;
     LinearLayout iconSelector;
@@ -56,6 +57,7 @@ class PlaylistDialog {
                 activity.updateNoItemsView();
                 activity.listOfPlaylistsRecycler.scrollToPosition(whereToAdd);
                 resetView();
+                if (managePlaylistsDialog != null) managePlaylistsDialog.refresh();
             });
         } else {
             toEdit = activity.listOfPlaylists.getPlaylistAt(_forPlaylist);
@@ -65,12 +67,18 @@ class PlaylistDialog {
                 String text = editText.getText().toString();
                 toEdit.title = text;
                 toEdit.icon = selectedIcon;
+                activity.updateShortcutOfPlaylist(toEdit);
                 activity.listOfPlaylistsAdapter.notifyItemChanged(_forPlaylist);
                 if (activity.playlistOpen) activity.titleText.setText(text);
             });
         }
 
         dialog = builder.create();
+    }
+
+    PlaylistDialog(MainActivity _activity, ManagePlaylistsDialog _managePlaylistsDialog) {
+        this(_activity, -1);
+        managePlaylistsDialog = _managePlaylistsDialog;
     }
 
     private void resetView() {

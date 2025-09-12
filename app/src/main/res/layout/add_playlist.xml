@@ -18,6 +18,7 @@
         android:id="@+id/editText"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:background="@drawable/edit_text_bg"
         android:ems="10"
         android:hint="@string/default_title"
         android:inputType="text"
