@@ -35,7 +35,6 @@ dependencies {
 
     implementation(libs.appcompat)
     implementation(libs.material)
-    implementation(libs.gson)
     implementation(libs.glide)
     implementation(libs.activity)
     implementation(libs.constraintlayout)

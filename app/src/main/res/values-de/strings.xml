@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Settings menu -->
+    <string name="auto_shut_down">Automatische Abschaltung</string>
+    <string name="auto_shut_down_disable">Deaktivieren</string>
+    <string name="auto_shut_down_10">After 10 minutes</string>
+    <string name="auto_shut_down_30">After 30 minutes</string>
+    <string name="auto_shut_down_60">After 60 minutes</string>
+    <string name="auto_shut_down_custom">Custom</string>
+    <string name="about">About</string>
+
+    <!-- Playlist and video options -->
+    <string name="insert_above">Oben einfügen</string>
+    <string name="insert_below">Unten einfügen</string>
+    <string name="edit">Bearbeiten</string>
+    <string name="delete">Löschen</string>
+    <string name="share">Teilen</string>
+
+    <!-- Playlist alert dialog -->
+    <string name="add_playlist">Wiedergabeliste hinzufügen</string>
+    <string name="edit_playlist">Wiedergabeliste bearbeiten</string>
+    <string name="title">Titel</string>
+    <string name="default_title">Meine Wiedergabeliste</string>
+    <string name="icon">Symbol</string>
+
+    <!-- Radio station alert dialog -->
+    <string name="add_video">Radiosender hinzufügen</string>
+    <string name="url_id_search">Suchen Sie…</string>
+    <string name="search_by_name">Name:</string>
+    <string name="search_by_country">Country:</string>
+    <string name="search_by_language">Language:</string>
+    <string name="search_by_tag">Tag:</string>
+    <string name="search_by_state">State:</string>
+
+    <!-- Delete alert dialog -->
+    <string name="delete_video_alert">Möchten Sie dieser Sender wirklich löschen?</string>
+    <string name="delete_playlist_alert">Möchten Sie diese Wiedergabeliste wirklich löschen?</string>
+
+    <!-- Info alert dialog -->
+    <string name="copy_stream_url">Stream-URL kopieren</string>
+    <string name="copy_favicon_url">Copy favicon URL</string>
+    <string name="copy_station_uuid">Copy station UUID</string>
+
+    <!-- Dialog buttons-->
+    <string name="dialog_button_add">Hinzufügen</string>
+    <string name="dialog_button_apply">Anwenden</string>
+    <string name="dialog_button_cancel">Abbrechen</string>
+    <string name="dialog_button_delete">Löschen</string>
+    <string name="dialog_button_no">Nein</string>
+    <string name="dialog_button_ok">OK</string>
+
+    <!-- Toast messages -->
+    <string name="copy_to_clipboard">In die Zwischenablage kopiert</string>
+    <string name="station_already_added">Dieser Sender wurde bereits hinzugefügt.</string>
+    <string name="grant_permission">Ohne Speicherberechtigung können keine Wiedergabelisten importiert werden.</string>
+
+    <!-- No playlists/videos -->
+    <string name="no_playlists">Es gibt keine Wiedergabelisten.\n\nTippen Sie auf die Taste \"+\",\num eine Wiedergabeliste hinzuzufügen.</string>
+    <string name="no_videos">Die Wiedergabeliste ist leer.\n\nTippen Sie auf die Taste \"+\"\num ein Sender hinzuzufügen.</string>
+
+    <!-- Misc -->
+    <string name="select_all">Alle auswählen</string>
+    <string name="add_to_playlist">Zur Wiedergabeliste hinzufügen</string>
+    <string name="multi_choose_station">%d Sender ausgewählt</string>
+    <string name="multi_remove_station_title">Mehrere Sender löschen</string>
+    <string name="multi_remove_station_prompt">%d Sender löschen?</string>
+    <string name="timer_disabled">Timer deaktiviert.</string>
+    <string name="timer_set">Player will be shut down in %d minutes.</string>
+    <string name="copy">Kopieren</string>
+    <string name="move">Verschieben</string>
+    <string name="loading">Wird geladen…</string>
+    <string name="no_results_found">Keine Ergebnisse gefunden.</string>
+    <string name="station_info">Station info</string>
+    <string name="import_success">Wiedergabeliste importiert.</string>
+    <string name="import_fail">Wiedergabeliste konnte nicht importiert werden.</string>
+    <string name="n_stations">%d Sender</string>
+    <string name="check_internet_connection">Bitte überprüfen Sie Ihre Internetverbindung.</string>
+    <string name="at_least_three_letters">Sie können nach einem Wort mit mindestens drei Buchstaben suchen.</string>
+    <string name="my_playlists">MEINE LISTEN</string>
+    <string name="top_stations">TOP-SENDER</string>
+    <string name="countries">LÄNDER</string>
+    <string name="languages">SPRACHEN</string>
+    <string name="tags">TAGS</string>
+    <string name="world_top_20">Top 20 der Welt</string>
+    <string name="most_liked">Beliebteste Sender</string>
+    <string name="last_added">Zuletzt hinzugefügte Sender</string>
+    <string name="currently_listening">Derzeit weltweit gehörte Sender</string>
+    <string name="go_to_website">Zur Website</string>
+    <string name="added">Wurde hinzugefügt.</string>
+    <string name="playlist_not_selected">Keine Playlist ausgewählt.</string>
+
+    <string name="merge">Zusammenführen</string>
+    <string name="sort_playlists">Wiedergabelisten sortieren</string>
+    <string name="sort_videos">Videos sortieren</string>
+    <string name="multi_choose">%d Liste(n) ausgewählt</string>
+    <string name="multi_remove_title">Mehrere Listen löschen</string>
+    <string name="multi_remove_prompt">%d Listen löschen?</string>
+    <string name="removed">Gelöscht.</string>
+    <string name="merge_title">Zusammenführen</string>
+    <string name="merge_message">%d Wiedergabelisten zusammenführen?</string>
+    <string name="dialog_button_merge">Zusammenführen</string>
+    <string name="merge_success">In Liste\"%s\" zusammengeführt.</string>
+    <string name="choose_more_than_one">Bitte wählen Sie mindestens zwei Playlists aus.</string>
+    <string name="auto_shut_down_title">Automatische Abschaltung</string>
+    <string name="after_minutes">Nach %d Minuten</string>
+    <string name="dialog_button_start">Starten</string>
+    <string name="moved">Verschoben.</string>
+    <string name="copied">Kopiert.</string>
+    <string name="no_playlist_found">All playlists contain this video.</string>
+    <string name="previous">Vorherige</string>
+    <string name="pause">Pause</string>
+    <string name="play">Abspielen</string>
+    <string name="next">Nächste</string>
+    <string name="forward">Vorlauf</string>
+    <string name="stop">Stoppen</string>
+    <string name="already_added">Dieses Video wurde bereits hinzugefügt.</string>
+    <string name="start_timer">Timer starten</string>
+    <string name="cancel_timer">Timer abbrechen</string>
+    <string name="settings">Einstellungen</string>
+    <string name="minutes">Minuten</string>
+    <string name="theme">Thema</string>
+    <string name="light">Licht</string>
+    <string name="dark">Dunkel</string>
+    <string name="auto">Automatisch</string>
+    <string name="add_to_home">Zum Home-Bildschirm hinzufügen</string>
+    <string name="new_playlist">Neue Wiedergabeliste</string>
+    <string name="minutes_left">Minuten übrig</string>
+    <string name="could_not_add">Konnte nicht hinzufügen.</string>
+    <string name="search_hint">Suchen Sie…</string>
+    <string name="sort_by">Sort by</string>
+    <string name="sort_by_name">Name</string>
+    <string name="sort_by_bitrate">Bitrate</string>
+    <string name="sort_by_codec">Codec</string>
+
+</resources>

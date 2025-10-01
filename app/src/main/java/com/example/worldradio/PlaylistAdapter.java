@@ -2,8 +2,6 @@ package com.example.worldradio;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
-import android.graphics.Color;
-import android.graphics.Typeface;
 import android.text.SpannableString;
 import android.text.Spanned;
 import android.text.style.ForegroundColorSpan;
@@ -11,15 +9,12 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.CheckBox;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.widget.PopupMenu;
-import androidx.core.content.res.ResourcesCompat;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -27,6 +22,7 @@ import com.bumptech.glide.Glide;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 class PlaylistAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> implements ItemMoveCallback.ItemTouchHelperContract {
     MainActivity activity;
@@ -48,7 +44,7 @@ class PlaylistAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> impl
     @Override
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
         View itemView = holder.itemView;
-        int pos = holder.getAdapterPosition();
+        int pos = holder.getBindingAdapterPosition();
         boolean playing = activity.currentLopIndex == activity.playingLopIndex && activity.currentPlaylistIndex == activity.playingPlaylistIndex && activity.playingRadioStationIndex == pos;
         boolean selected = activity.selectionMode && activity.selectedItems.contains(pos);
         boolean notSelected = activity.selectionMode && !activity.selectedItems.contains(pos);
@@ -58,6 +54,8 @@ class PlaylistAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> impl
         TextView title = itemView.findViewById(R.id.videoTitle);
         ImageView options = itemView.findViewById(R.id.radioAddTo);
         ImageView trendBadge = itemView.findViewById(R.id.trendBadge);
+        TextView codecText = itemView.findViewById(R.id.codecText);
+        TextView bitrateText = itemView.findViewById(R.id.bitrateText);
 
         setItemOnClickListener(layout, pos);
         setItemOnLongClickListener(layout, pos);
@@ -70,20 +68,29 @@ class PlaylistAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> impl
                         : R.drawable.playlist_icon);
         title.setTextColor(activity.getColor(playing ? R.color.green2 : R.color.grey1));
 
-        RadioStation thisVideo = activity.currentPlaylist.getRadioStationAt(pos);
+        RadioStation thisStation = activity.currentPlaylist.getRadioStationAt(pos);
+
+        codecText.setVisibility(activity.showCodec ? View.VISIBLE
+                : (activity.currentPlaylist.sortBy == Playlist.CODEC ? View.VISIBLE : View.GONE));
+        codecText.setText(thisStation.codec);
+
+        bitrateText.setVisibility(
+                (activity.showBitrate || activity.currentPlaylist.sortBy == Playlist.BITRATE) && thisStation.bitrate != 0 ? View.VISIBLE : View.GONE);
+        bitrateText.setText(String.format(Locale.ENGLISH, "%d kB/s", thisStation.bitrate));
+
         int type = activity.currentPlaylist.type;
         if (activity.searchMode && activity.foundItemIndex == pos) {
-            SpannableString spannableString = new SpannableString(thisVideo.title);
+            SpannableString spannableString = new SpannableString(thisStation.title);
             spannableString.setSpan(new ForegroundColorSpan(activity.getColor(R.color.yellow)),
                     activity.foundAtStart,
                     activity.foundAtEnd,
                     Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
             title.setText(spannableString, TextView.BufferType.SPANNABLE);
-        } else title.setText(thisVideo.title);
+        } else title.setText(thisStation.title);
 
         if (selected) thumbnail.setImageResource(R.drawable.baseline_done_24);
-        else if (thisVideo.faviconUrl.isEmpty()) thumbnail.setImageResource(R.drawable.baseline_radio_24);
-        else Glide.with(activity).load(thisVideo.faviconUrl).placeholder(R.drawable.baseline_radio_24).into(thumbnail);
+        else if (thisStation.faviconUrl.isEmpty()) thumbnail.setImageResource(R.drawable.baseline_radio_24);
+        else Glide.with(activity).load(thisStation.faviconUrl).placeholder(R.drawable.baseline_radio_24).into(thumbnail);
 
         trendBadge.setVisibility(View.GONE);
 
@@ -94,8 +101,8 @@ class PlaylistAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> impl
 
         options.setVisibility(activity.selectionMode || activity.listSortMode || activity.searchMode ? View.INVISIBLE : View.VISIBLE);
 
-        PopupMenu popupMenu = activity.getRadioStationPopupMenu(options, pos);
-        options.setOnClickListener(view -> popupMenu.show());
+        BottomSheetMenu bottomSheetMenu = activity.getRadioStationPopupMenu(pos);
+        options.setOnClickListener(view -> bottomSheetMenu.showMenu());
 
         options.setOnTouchListener((v, event) -> {
             if (event.getAction() == MotionEvent.ACTION_DOWN) options.setBackgroundResource(R.drawable.ripple_on_dark_grey);
@@ -204,7 +211,7 @@ class PlaylistAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> impl
 
     @Override
     public void onSwipe(@NonNull RecyclerView.ViewHolder viewHolder, int i) {
-        int position = viewHolder.getAdapterPosition();
+        int position = viewHolder.getBindingAdapterPosition();
         if (i == ItemTouchHelper.START) {
             new ManagePlaylistsDialog(activity, position).show();
             notifyItemChanged(position);

@@ -1,0 +1,530 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+
+
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/grey10">
+
+    <LinearLayout
+        android:id="@+id/layoutMain"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:id="@+id/list"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="6"
+                    android:orientation="vertical">
+
+                    <LinearLayout
+                        android:id="@+id/searchBar"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center_vertical"
+                        android:minHeight="52dp"
+                        android:orientation="horizontal"
+                        android:visibility="gone">
+
+                        <ImageView
+                            android:id="@+id/cancelSearchButton"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:background="@drawable/ripple_on_dark_grey"
+                            android:padding="16dp"
+                            app:srcCompat="@drawable/baseline_arrow_back_24" />
+
+                        <EditText
+                            android:id="@+id/searchEditText"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:background="@drawable/edit_text_bg"
+                            android:ems="10"
+                            android:hint="@string/search_hint"
+                            android:inputType="text"
+                            android:padding="8dp"
+                            android:textColor="@color/grey1"
+                            android:textSize="16sp" />
+
+                        <ImageView
+                            android:id="@+id/findUpButton"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:background="@drawable/ripple_on_dark_grey"
+                            android:clickable="true"
+                            android:focusable="true"
+                            android:padding="16dp"
+                            app:srcCompat="@drawable/baseline_arrow_upward_24" />
+
+                        <ImageView
+                            android:id="@+id/findDownButton"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:background="@drawable/ripple_on_dark_grey"
+                            android:clickable="true"
+                            android:focusable="true"
+                            android:padding="16dp"
+                            android:rotation="180"
+                            app:srcCompat="@drawable/baseline_arrow_upward_24" />
+
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:id="@+id/toolbar"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center_vertical"
+                        android:minHeight="52dp"
+                        android:orientation="horizontal">
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="match_parent"
+                            android:layout_weight="1"
+                            android:gravity="center_vertical"
+                            android:orientation="horizontal">
+
+                            <ImageView
+                                android:id="@+id/icon"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:background="@drawable/ripple_on_dark_grey"
+                                android:padding="16dp"
+                                app:srcCompat="@drawable/baseline_radio_24" />
+
+                            <TextView
+                                android:id="@+id/titleText"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:singleLine="true"
+                                android:text="@string/app_name"
+                                android:textColor="@color/grey6"
+                                android:textSize="17sp" />
+
+                            <com.google.android.material.tabs.TabLayout
+                                android:id="@+id/tabLayout"
+                                android:layout_width="0dp"
+                                android:layout_height="match_parent"
+                                android:layout_weight="1"
+                                android:background="@color/transparent"
+                                android:clipToPadding="false"
+                                android:paddingStart="16dp"
+                                android:paddingEnd="16dp"
+                                app:tabGravity="center"
+                                app:tabIndicatorColor="@color/teal_700"
+                                app:tabMode="scrollable"
+                                app:tabSelectedTextColor="@color/teal_700">
+
+                                <com.google.android.material.tabs.TabItem
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="@string/my_playlists" />
+
+                                <com.google.android.material.tabs.TabItem
+                                    android:id="@+id/tabItem"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="@string/top_stations" />
+
+                                <com.google.android.material.tabs.TabItem
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="@string/countries" />
+
+                                <com.google.android.material.tabs.TabItem
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="@string/languages" />
+
+                                <com.google.android.material.tabs.TabItem
+                                    android:id="@+id/tabItem2"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:text="@string/tags" />
+                            </com.google.android.material.tabs.TabLayout>
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="match_parent"
+                            android:layout_gravity="end"
+                            android:orientation="horizontal">
+
+                            <ImageView
+                                android:id="@+id/search"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:background="@drawable/ripple_on_dark_grey"
+                                android:clickable="true"
+                                android:focusable="true"
+                                android:padding="16dp"
+                                app:srcCompat="@drawable/baseline_search_24" />
+
+                            <ImageView
+                                android:id="@+id/selectAllButton"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:background="@drawable/ripple_on_dark_grey"
+                                android:clickable="true"
+                                android:focusable="true"
+                                android:padding="16dp"
+                                android:visibility="gone"
+                                app:srcCompat="@drawable/baseline_select_all_24" />
+
+                            <ImageView
+                                android:id="@+id/removeButton"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:background="@drawable/ripple_on_dark_grey"
+                                android:clickable="true"
+                                android:focusable="true"
+                                android:padding="16dp"
+                                android:visibility="gone"
+                                app:srcCompat="@drawable/baseline_delete_forever_24" />
+
+                            <ImageView
+                                android:id="@+id/addToPlaylistButton"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:background="@drawable/ripple_on_dark_grey"
+                                android:clickable="true"
+                                android:focusable="true"
+                                android:padding="16dp"
+                                android:visibility="gone"
+                                app:srcCompat="@drawable/baseline_playlist_add_24" />
+
+                            <ImageView
+                                android:id="@+id/merge"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:background="@drawable/ripple_on_dark_grey"
+                                android:clickable="true"
+                                android:focusable="true"
+                                android:padding="16dp"
+                                android:visibility="gone"
+                                app:srcCompat="@drawable/baseline_call_merge_24" />
+
+                            <ImageView
+                                android:id="@+id/options"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:background="@drawable/ripple_on_dark_grey"
+                                android:clickable="true"
+                                android:focusable="true"
+                                android:padding="16dp"
+                                app:srcCompat="@drawable/baseline_more_vert_24" />
+
+                            <ImageView
+                                android:id="@+id/settings"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:background="@drawable/ripple_on_dark_grey"
+                                android:clickable="true"
+                                android:padding="16dp"
+                                android:visibility="gone"
+                                app:srcCompat="@drawable/baseline_settings_24" />
+                        </LinearLayout>
+
+                    </LinearLayout>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/musicController"
+                    android:layout_width="0dp"
+                    android:layout_height="56dp"
+                    android:layout_marginEnd="8dp"
+                    android:layout_weight="4"
+                    android:background="@drawable/music_controller_back"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:padding="3dp">
+
+                    <ImageView
+                        android:id="@+id/musicIcon"
+                        android:layout_width="50dp"
+                        android:layout_height="50dp"
+                        android:padding="13dp"
+                        app:srcCompat="@drawable/baseline_library_music_24" />
+
+                    <TextView
+                        android:id="@+id/musicTitle"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:ellipsize="marquee"
+                        android:focusable="true"
+                        android:focusableInTouchMode="true"
+                        android:marqueeRepeatLimit="marquee_forever"
+                        android:scrollHorizontally="true"
+                        android:singleLine="true"
+                        android:text="TextView"
+                        android:textColor="@color/grey4" />
+
+                    <ImageView
+                        android:id="@+id/infoButton"
+                        android:layout_width="50dp"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/ripple_on_black"
+                        android:padding="13dp"
+                        app:srcCompat="@drawable/baseline_skip_previous_24" />
+
+                    <ImageView
+                        android:id="@+id/playButton"
+                        android:layout_width="50dp"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/ripple_on_black"
+                        android:padding="13dp"
+                        android:visibility="gone"
+                        app:srcCompat="@drawable/baseline_play_arrow_24" />
+
+                    <ProgressBar
+                        android:id="@+id/progressBar"
+                        style="?android:attr/progressBarStyle"
+                        android:layout_width="50dp"
+                        android:layout_height="match_parent"
+                        android:indeterminateTint="@color/grey2"
+                        android:padding="13dp" />
+
+                    <ImageView
+                        android:id="@+id/addToButton"
+                        android:layout_width="50dp"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/ripple_on_black"
+                        android:padding="13dp"
+                        app:srcCompat="@drawable/baseline_skip_next_24" />
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/mainScreen"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical">
+
+                <LinearLayout
+                    android:id="@+id/recyclerLayout"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="horizontal">
+
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/listOfPlaylistsRecycler"
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:clipToPadding="false"
+                        android:paddingTop="8dp"
+                        android:paddingBottom="140dp"
+                        android:scrollbarStyle="outsideOverlay"
+                        android:scrollbars="vertical"
+                        android:visibility="gone">
+
+                    </androidx.recyclerview.widget.RecyclerView>
+
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/playlistRecycler"
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:clipToPadding="false"
+                        android:paddingBottom="140dp"
+                        android:scrollbarStyle="outsideOverlay"
+                        android:scrollbars="vertical"
+                        android:visibility="gone">
+
+                    </androidx.recyclerview.widget.RecyclerView>
+
+                    <LinearLayout
+                        android:id="@+id/infoLayout"
+                        android:layout_width="0dp"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:gravity="center"
+                        android:orientation="vertical">
+
+                        <ImageView
+                            android:id="@+id/warningIcon"
+                            android:layout_width="40dp"
+                            android:layout_height="40dp"
+                            android:layout_marginBottom="16dp"
+                            app:srcCompat="@drawable/baseline_info_outline_24" />
+
+                        <TextView
+                            android:id="@+id/infoText"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginBottom="16dp"
+                            android:gravity="center_horizontal"
+                            android:text="@string/no_playlists"
+                            android:textSize="16sp" />
+
+                        <ProgressBar
+                            android:id="@+id/loadingBar"
+                            style="?android:attr/progressBarStyleHorizontal"
+                            android:layout_width="150dp"
+                            android:layout_height="wrap_content"
+                            android:indeterminate="true"
+                            android:indeterminateBehavior="cycle" />
+                    </LinearLayout>
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+            <ScrollView
+                android:id="@+id/settingsScreen"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:clipToPadding="false">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <CheckBox
+                        android:id="@+id/showBitrateButton"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Bit hızını daima göster" />
+
+                    <CheckBox
+                        android:id="@+id/showCodecButton"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Codec'i daima göster" />
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:paddingStart="32dp"
+                        android:text="@string/auto_shut_down"
+                        android:textStyle="bold" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal"
+                        android:paddingStart="24dp">
+
+                        <EditText
+                            android:id="@+id/autoShutDownEditText"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:gravity="center_horizontal|center_vertical"
+                            android:hint="60"
+                            android:inputType="number|numberDecimal"
+                            android:maxLength="3"
+                            android:paddingStart="16dp"
+                            android:paddingEnd="16dp"
+                            android:textColor="@color/grey1"
+                            android:textColorHint="@color/blue_grey" />
+
+                        <TextView
+                            android:id="@+id/minutesTextView"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="8dp"
+                            android:text="@string/minutes"
+                            android:textColor="@color/grey5"
+                            android:textSize="16sp" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:id="@+id/startCancelTimerButton"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="16dp"
+                        android:background="@drawable/start_timer_back"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal"
+                        android:padding="8dp">
+
+                        <ImageView
+                            android:id="@+id/timerStartIcon"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            app:srcCompat="@drawable/baseline_play_arrow_24" />
+
+                        <TextView
+                            android:id="@+id/timerStartText"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="5dp"
+                            android:layout_weight="1"
+                            android:text="@string/start_timer"
+                            android:textColor="@color/grey1" />
+                    </LinearLayout>
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="40dp"
+                        android:paddingStart="32dp"
+                        android:text="@string/theme"
+                        android:textStyle="bold" />
+
+                    <RadioGroup
+                        android:id="@+id/themesButton"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent">
+
+                        <RadioButton
+                            android:id="@+id/light"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="@string/light" />
+
+                        <RadioButton
+                            android:id="@+id/dark"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="@string/dark" />
+
+                        <RadioButton
+                            android:id="@+id/auto"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="@string/auto" />
+
+                    </RadioGroup>
+
+                </LinearLayout>
+            </ScrollView>
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/addButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
+        android:layout_margin="16dp"
+        android:clickable="true"
+        app:srcCompat="@drawable/baseline_add_24" />
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

@@ -16,14 +16,16 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.material.bottomsheet.BottomSheetBehavior;
+import com.google.android.material.bottomsheet.BottomSheetDialog;
+
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 
-class RadioStationDialog implements RadioApi.RadioStationCallback {
+class RadioStationDialog extends BottomSheetDialog implements RadioApi.RadioStationCallback {
     MainActivity activity;
-    AlertDialog.Builder builder;
-    AlertDialog dialog;
     View dialogView;
+    ImageView cancelButton;
     EditText search;
     RecyclerView searchResults;
     SearchResultsAdapter searchResultsAdapter;
@@ -34,10 +36,11 @@ class RadioStationDialog implements RadioApi.RadioStationCallback {
     int whereToAdd;
 
     RadioStationDialog(MainActivity _activity) {
+        super(_activity, R.style.BottomSheetDialogTheme);
         activity = _activity;
-        builder = new AlertDialog.Builder(activity, R.style.Theme_OnlinePlaylistsDialogDark);
-        builder.setTitle(activity.getString(R.string.add_video));
-        dialogView = activity.getLayoutInflater().inflate(R.layout.add_video, null);
+        dialogView = getLayoutInflater().inflate(R.layout.add_video, null);
+        cancelButton = dialogView.findViewById(R.id.cancelButton);
+        cancelButton.setOnClickListener(v -> cancel());
         search = dialogView.findViewById(R.id.search);
         search.addTextChangedListener(new TextWatcher() {
             @Override
@@ -63,23 +66,21 @@ class RadioStationDialog implements RadioApi.RadioStationCallback {
         searchResults.setLayoutManager(new LinearLayoutManager(activity));
         info = dialogView.findViewById(R.id.goToWebsite);
         queryWarning = dialogView.findViewById(R.id.warning);
-        builder.setNegativeButton(R.string.dialog_button_cancel, null);
-        builder.setOnDismissListener(dialog1 -> {
+        setOnDismissListener(dialog1 -> {
             queryWarning.setVisibility(View.GONE);
             OnlinePlaylistsUtils.hideKeyboard(activity, search);
-        }
-        );
-        builder.setView(dialogView);
-        dialog = builder.create();
+        });
+        setContentView(dialogView);
+        getBehavior().setState(BottomSheetBehavior.STATE_EXPANDED);
     }
 
-    public void show() {
-        show(0);
+    public void showDialog() {
+        showDialog(0);
     }
 
-    public void show(int _whereToAdd) {
+    public void showDialog(int _whereToAdd) {
         whereToAdd = _whereToAdd;
-        dialog.show();
+        show();
         OnlinePlaylistsUtils.showKeyboard(activity, search);
     }
 

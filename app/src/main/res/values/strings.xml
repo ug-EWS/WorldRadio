@@ -117,5 +117,19 @@
     <string name="tags">TAGS</string>
     <string name="world_top_20">World Top20</string>
     <string name="most_liked">Most liked stations</string>
+    <string name="last_added">Last added stations</string>
+    <string name="currently_listening">Currently listened stations</string>
+    <string name="new_playlist">New playlist</string>
+    <string name="could_not_add">Could not add.</string>
+    <string name="add_to_home">Add to home screen</string>
+    <string name="go_to_website">Go to website</string>
+    <string name="added">Has been added.</string>
+    <string name="playlist_not_selected">No playlist selected.</string>
+    <string name="minutes_left">minutes left</string>
+    <string name="search_hint">Search…</string>
+    <string name="sort_by">Sort by</string>
+    <string name="sort_by_name">Name</string>
+    <string name="sort_by_bitrate">Bitrate</string>
+    <string name="sort_by_codec">Codec</string>
 
 </resources>

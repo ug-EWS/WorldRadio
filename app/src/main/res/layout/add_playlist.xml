@@ -3,82 +3,126 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="vertical"
-    android:padding="16dp">
-
-    <TextView
-        android:id="@+id/textView"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:padding="8dp"
-        android:text="@string/title"
-        android:textColor="@color/grey1" />
-
-    <EditText
-        android:id="@+id/editText"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="@drawable/edit_text_bg"
-        android:ems="10"
-        android:hint="@string/default_title"
-        android:inputType="text"
-        android:padding="16dp"
-        android:textColor="@color/grey1"
-        android:textColorHint="@color/blue_grey" />
-
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:padding="8dp"
-        android:text="@string/icon"
-        android:textColor="@color/grey1" />
+    android:orientation="vertical">
 
     <LinearLayout
-        android:id="@+id/iconSelector"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:gravity="center_vertical"
         android:orientation="horizontal">
 
         <ImageView
-            android:id="@+id/general"
+            android:id="@+id/cancelButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:background="@drawable/playlist_icon"
+            android:background="@drawable/ripple_on_dark_grey"
             android:padding="16dp"
-            app:srcCompat="@drawable/baseline_featured_play_list_24" />
+            app:srcCompat="@drawable/baseline_close_24" />
 
-        <ImageView
-            android:id="@+id/favorite"
-            android:layout_width="wrap_content"
+        <TextView
+            android:id="@+id/title"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:padding="16dp"
-            app:srcCompat="@drawable/baseline_favorite_24" />
+            android:singleLine="true"
+            android:text="@string/add_playlist"
+            android:textColor="@color/grey4"
+            android:textSize="18sp" />
 
-        <ImageView
-            android:id="@+id/music"
+        <TextView
+            android:id="@+id/addButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
+            android:background="@drawable/ripple_list"
             android:padding="16dp"
-            app:srcCompat="@drawable/baseline_library_music_24" />
+            android:text="@string/dialog_button_add"
+            android:textAllCaps="true"
+            android:textColor="@color/teal_700"
+            android:textSize="16sp" />
 
-        <ImageView
-            android:id="@+id/game"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:padding="16dp"
-            app:srcCompat="@drawable/baseline_newspaper_24" />
+    </LinearLayout>
 
-        <ImageView
-            android:id="@+id/movie"
-            android:layout_width="wrap_content"
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <TextView
+            android:id="@+id/textView"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
+            android:padding="8dp"
+            android:text="@string/title"
+            android:textColor="@color/grey1" />
+
+        <EditText
+            android:id="@+id/editText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/edit_text_bg"
+            android:ems="10"
+            android:hint="@string/default_title"
+            android:inputType="text"
             android:padding="16dp"
-            app:srcCompat="@drawable/baseline_theater_comedy_24" />
+            android:textColor="@color/grey1"
+            android:textColorHint="@color/blue_grey" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:padding="8dp"
+            android:text="@string/icon"
+            android:textColor="@color/grey1" />
+
+        <LinearLayout
+            android:id="@+id/iconSelector"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="horizontal">
+
+            <ImageView
+                android:id="@+id/general"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:background="@drawable/playlist_icon"
+                android:padding="16dp"
+                app:srcCompat="@drawable/baseline_featured_play_list_24" />
+
+            <ImageView
+                android:id="@+id/favorite"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:padding="16dp"
+                app:srcCompat="@drawable/baseline_favorite_24" />
+
+            <ImageView
+                android:id="@+id/music"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:padding="16dp"
+                app:srcCompat="@drawable/baseline_library_music_24" />
+
+            <ImageView
+                android:id="@+id/game"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:padding="16dp"
+                app:srcCompat="@drawable/baseline_newspaper_24" />
+
+            <ImageView
+                android:id="@+id/movie"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:padding="16dp"
+                app:srcCompat="@drawable/baseline_theater_comedy_24" />
+        </LinearLayout>
     </LinearLayout>
 
 </LinearLayout>

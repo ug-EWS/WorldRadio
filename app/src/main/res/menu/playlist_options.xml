@@ -17,6 +17,23 @@
             android:layout_height="wrap_content"
             android:title="@string/sort_videos" />
         <item
+            android:id="@+id/sortBy"
+            android:title="Sırala">
+            <menu>
+                <group android:checkableBehavior="single">
+                    <item
+                        android:id="@+id/name"
+                        android:title="Ada göre" />
+                    <item
+                        android:id="@+id/bitrate"
+                        android:title="Bit hızına göre" />
+                    <item
+                        android:id="@+id/codec"
+                        android:title="Codec'e göre" />
+                </group>
+            </menu>
+        </item>
+        <item
             android:id="@+id/edit"
             android:title="@string/edit" />
         <item
@@ -26,7 +43,7 @@
             android:title="@string/share" />
         <item
             android:id="@+id/addToHome"
-            android:title="Ana ekrana ekle" />
+            android:title="@string/add_to_home" />
         <item
             android:id="@+id/delete"
             android:title="@string/delete" />

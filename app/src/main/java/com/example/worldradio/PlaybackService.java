@@ -70,7 +70,6 @@ public class PlaybackService extends Service {
     private final String ACTION_NEXT = "com.opl.ACTION_NEXT";
 
     private final int SERVICE_NOTIFICATION = 101;
-    private final int TIMEOUT_NOTIFICATION = 102;
 
     @Override
     public void onCreate() {
@@ -146,7 +145,6 @@ public class PlaybackService extends Service {
             }
         });
 
-        mediaMetadata = new MediaMetadata.Builder();
         mediaMetadata = new MediaMetadata.Builder().putLong(MediaMetadata.METADATA_KEY_DURATION, -1L);
         mediaSession.setMetadata(mediaMetadata.build());
 
@@ -191,7 +189,7 @@ public class PlaybackService extends Service {
                 String action = intent.getAction();
                 switch (action) {
                     case ACTION_START_SERVICE:
-                        playlist = new Playlist(intent.getStringExtra("playlist"), false);
+                        playlist = new Playlist(intent.getStringExtra("playlist"));
                         playingRadioStationIndex = sp.getInt("playingVideoIndex", 0);
                         timerSet = sp.getBoolean("timerSet", false);
                         timerMs = sp.getLong("timerMs", 0);
@@ -203,7 +201,6 @@ public class PlaybackService extends Service {
                         play();
                         break;
                     case ACTION_CLOSE:
-                        notificationManager.cancel(TIMEOUT_NOTIFICATION);
                         stopSelf();
                         break;
                     case ACTION_FORWARD:

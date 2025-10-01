@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Locale;
 import java.util.NoSuchElementException;
-import java.util.Optional;
 
 import de.sfuhrm.radiobrowser4j.ConnectionParams;
 import de.sfuhrm.radiobrowser4j.EndpointDiscovery;
@@ -43,9 +42,9 @@ public class RadioApi {
                                             station.getStationUUID().toString(),
                                             station.getUrlResolved(),
                                             station.getFavicon(),
-                                            station.getHls(),
                                             station.getHomepage(),
-                                            "")));
+                                            station.getCodec(),
+                                            station.getBitrate())));
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -72,10 +71,9 @@ public class RadioApi {
                                             station.getStationUUID().toString(),
                                             station.getUrlResolved(),
                                             station.getFavicon(),
-                                            station.getHls(),
                                             station.getHomepage(),
-                                            type == 1 ? String.valueOf(station.getClicktrend()) : ""
-                                    )));
+                                            station.getCodec(),
+                                            station.getBitrate())));
                     }
                     else {
                         SearchMode sm = type == 2 ? SearchMode.BYCOUNTRYCODEEXACT : type == 3 ? SearchMode.BYLANGUAGEEXACT : SearchMode.BYTAGEXACT;
@@ -85,10 +83,9 @@ public class RadioApi {
                                                 station.getStationUUID().toString(),
                                                 station.getUrlResolved(),
                                                 station.getFavicon(),
-                                                station.getHls(),
                                                 station.getHomepage(),
-                                                ""
-                                        )));
+                                                station.getCodec(),
+                                                station.getBitrate())));
                     }
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -98,19 +95,20 @@ public class RadioApi {
     }
 
     public void getListOfPlaylists(int type) {
-        if (loc != null)
+        if (type == 1) {
+            ListOfPlaylists lop = new ListOfPlaylists();
+            lop.addPlaylist(new Playlist(loc.getStringById(R.string.currently_listening), 8, 20, null));
+            lop.addPlaylist(new Playlist(loc.getStringById(R.string.last_added), 7, 20, null));
+            lop.addPlaylist(new Playlist(loc.getStringById(R.string.most_liked), 6, 20, null));
+            lop.addPlaylist(new Playlist(loc.getStringById(R.string.world_top_20), 1, 20, null));
+            loc.onGotListOfPlaylists(lop, type);
+        } else if (loc != null)
             new Thread(() -> {
                 currentId++;
                 int id = currentId;
                 ListOfPlaylists lop = new ListOfPlaylists();
                 if (rb == null) rb = getRadioBrowser();
                 switch (type) {
-                    case 1:
-                        lop.addPlaylist(new Playlist("Dünyada şu an dinlenenler", 8, 20, null));
-                        lop.addPlaylist(new Playlist("En son eklenenler", 7, 20, null));
-                        lop.addPlaylist(new Playlist(loc.getStringById(R.string.most_liked), 6, 20, null));
-                        lop.addPlaylist(new Playlist(loc.getStringById(R.string.world_top_20), 1, 20, null));
-                        break;
                     case 2:
                         try {
                             rb.listCountryCodes().forEach(((s, integer) ->

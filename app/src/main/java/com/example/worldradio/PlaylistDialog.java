@@ -7,18 +7,23 @@ import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import androidx.appcompat.app.AlertDialog;
+
+import com.google.android.material.bottomsheet.BottomSheetBehavior;
+import com.google.android.material.bottomsheet.BottomSheetDialog;
 
 import de.sfuhrm.radiobrowser4j.ConnectionParams;
 import de.sfuhrm.radiobrowser4j.RadioBrowser;
 
-class PlaylistDialog {
+class PlaylistDialog extends BottomSheetDialog {
     MainActivity activity;
-    AlertDialog.Builder builder;
-    AlertDialog dialog;
     ManagePlaylistsDialog managePlaylistsDialog;
     View dialogView;
+    ImageView cancelButton;
+    TextView addButton;
+    TextView title;
     EditText editText;
     LinearLayout iconSelector;
     Playlist toEdit;
@@ -26,31 +31,39 @@ class PlaylistDialog {
     int selectedIcon;
 
     PlaylistDialog(MainActivity _activity, int _forPlaylist) {
+        super(_activity, R.style.BottomSheetDialogTheme);
         activity = _activity;
-        builder = new AlertDialog.Builder(activity, R.style.Theme_OnlinePlaylistsDialogDark);
-        dialogView = activity.getLayoutInflater().inflate(R.layout.add_playlist, null);
+        dialogView = getLayoutInflater().inflate(R.layout.add_playlist, null);
         editText = dialogView.findViewById(R.id.editText);
         iconSelector = dialogView.findViewById(R.id.iconSelector);
         View.OnClickListener onClickListener = view -> selectIcon(iconSelector.indexOfChild(view));
         for (int i = 0; i < 5; i++) {
             iconSelector.getChildAt(i).setOnClickListener(onClickListener);
         }
-        builder.setNegativeButton(activity.getString(R.string.dialog_button_cancel), null);
-        builder.setOnDismissListener(dialog1 -> OnlinePlaylistsUtils.hideKeyboard(activity, editText));
-        builder.setView(dialogView);
+        cancelButton = dialogView.findViewById(R.id.cancelButton);
+        cancelButton.setOnClickListener(v -> cancel());
+        title = dialogView.findViewById(R.id.title);
+        addButton = dialogView.findViewById(R.id.addButton);
+        setOnDismissListener(dialog1 -> OnlinePlaylistsUtils.hideKeyboard(activity, editText));
         editText.setOnEditorActionListener((v, actionId, event) -> {
             if (actionId == EditorInfo.IME_ACTION_GO) {
-                dialog.getButton(DialogInterface.BUTTON_POSITIVE).performClick();
+                addButton.performClick();
                 return true;
             }
             return false;
         });
         boolean _newPlaylist = _forPlaylist == -1;
-        builder.setTitle(activity.getString(_newPlaylist ? R.string.add_playlist : R.string.edit_playlist));
-        if (_newPlaylist) {
-            resetView();
-            builder.setPositiveButton(activity.getString(R.string.dialog_button_add), (dialog, which) -> {
-                String text = editText.getText().toString();
+        title.setText(activity.getString(_newPlaylist ? R.string.add_playlist : R.string.edit_playlist));
+        if (_newPlaylist) resetView();
+        else {
+            toEdit = activity.listOfPlaylists.getPlaylistAt(_forPlaylist);
+            editText.setText(toEdit.title);
+            selectIcon(toEdit.icon);
+        }
+        addButton.setText(_newPlaylist ? R.string.dialog_button_add : R.string.dialog_button_apply);
+        addButton.setOnClickListener(v -> {
+            String text = editText.getText().toString();
+            if (_newPlaylist) {
                 if (text.isEmpty()) text = editText.getHint().toString();
                 activity.listOfPlaylists.addPlaylistTo(new Playlist(text, selectedIcon), whereToAdd);
                 activity.listOfPlaylistsAdapter.insertItem(whereToAdd);
@@ -58,22 +71,17 @@ class PlaylistDialog {
                 activity.listOfPlaylistsRecycler.scrollToPosition(whereToAdd);
                 resetView();
                 if (managePlaylistsDialog != null) managePlaylistsDialog.refresh();
-            });
-        } else {
-            toEdit = activity.listOfPlaylists.getPlaylistAt(_forPlaylist);
-            editText.setText(toEdit.title);
-            selectIcon(toEdit.icon);
-            builder.setPositiveButton(activity.getString(R.string.dialog_button_apply), (dialog, which) -> {
-                String text = editText.getText().toString();
+            } else {
                 toEdit.title = text;
                 toEdit.icon = selectedIcon;
                 activity.updateShortcutOfPlaylist(toEdit);
                 activity.listOfPlaylistsAdapter.notifyItemChanged(_forPlaylist);
                 if (activity.playlistOpen) activity.titleText.setText(text);
-            });
-        }
-
-        dialog = builder.create();
+            }
+            dismiss();
+        });
+        setContentView(dialogView);
+        getBehavior().setState(BottomSheetBehavior.STATE_EXPANDED);
     }
 
     PlaylistDialog(MainActivity _activity, ManagePlaylistsDialog _managePlaylistsDialog) {
@@ -96,13 +104,13 @@ class PlaylistDialog {
         }
     }
 
-    public void show() {
-        show(0);
+    public void showDialog() {
+        showDialog(0);
     }
 
-    public void show(int _whereToAdd) {
+    public void showDialog(int _whereToAdd) {
         whereToAdd = _whereToAdd;
-        dialog.show();
+        show();
         OnlinePlaylistsUtils.showKeyboard(activity, editText);
     }
 }

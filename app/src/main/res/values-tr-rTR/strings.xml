@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-
     <!-- Settings menu -->
     <string name="about">Hakkında</string>
 
@@ -118,5 +117,19 @@
     <string name="tags">KONULAR</string>
     <string name="world_top_20">Dünya Top20</string>
     <string name="most_liked">En çok beğeni alanlar</string>
+    <string name="last_added">En son eklenenler</string>
+    <string name="currently_listening">Dünyada şu an dinlenenler</string>
+    <string name="new_playlist">Yeni oynatma listesi</string>
+    <string name="could_not_add">Eklenemedi.</string>
+    <string name="add_to_home">Ana ekrana ekle</string>
+    <string name="go_to_website">Web sitesine git</string>
+    <string name="added">Eklendi.</string>
+    <string name="playlist_not_selected">Oynatma listesi seçilmedi.</string>
+    <string name="minutes_left">dakika kaldı</string>
+    <string name="search_hint">Arayın…</string>
+    <string name="sort_by">Sıralama ölçütü</string>
+    <string name="sort_by_name">Ad</string>
+    <string name="sort_by_bitrate">Bit hızı</string>
+    <string name="sort_by_codec">Codec</string>
 
 </resources>

@@ -15,7 +15,6 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.widget.PopupMenu;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -50,7 +49,7 @@ class ListOfPlaylistsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     @Override
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
         View itemView = holder.itemView;
-        int pos = holder.getAdapterPosition();
+        int pos = holder.getBindingAdapterPosition();
         Playlist playlist = activity.currentLop.getPlaylistAt(pos);
         boolean playing = activity.playingLopIndex == activity.currentLopIndex && activity.playingPlaylistIndex == pos;
         boolean selected = activity.selectionMode && activity.selectedItems.contains(pos);
@@ -103,8 +102,8 @@ class ListOfPlaylistsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
         options.setVisibility(activity.selectionMode || activity.listSortMode || activity.searchMode || activity.currentLopIndex != 0 ? View.INVISIBLE : View.VISIBLE);
 
         if (activity.currentLopIndex == 0) {
-            PopupMenu popupMenu = activity.getPlaylistPopupMenu(options, false, pos);
-            options.setOnClickListener(view -> popupMenu.show());
+            BottomSheetMenu bottomSheetMenu = activity.getPlaylistPopupMenu(false, pos);
+            options.setOnClickListener(view -> bottomSheetMenu.showMenu());
             setItemOnLongClickListener(layout, pos);
 
             options.setOnTouchListener((v, event) -> {
@@ -205,7 +204,7 @@ class ListOfPlaylistsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 
     @Override
     public void onSwipe(@NonNull RecyclerView.ViewHolder viewHolder, int i) {
-        int position = viewHolder.getAdapterPosition();
+        int position = viewHolder.getBindingAdapterPosition();
         if (i == ItemTouchHelper.START) {
             activity.sharePlaylist(activity.listOfPlaylists.getPlaylistAt(position));
             notifyItemChanged(position);

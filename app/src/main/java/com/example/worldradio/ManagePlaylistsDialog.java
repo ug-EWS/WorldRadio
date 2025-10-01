@@ -8,32 +8,35 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AlertDialog;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.material.bottomsheet.BottomSheetBehavior;
+import com.google.android.material.bottomsheet.BottomSheetDialog;
+
 import java.util.ArrayList;
 
-class ManagePlaylistsDialog {
+class ManagePlaylistsDialog extends BottomSheetDialog {
     MainActivity activity;
 
-    AlertDialog.Builder builder;
-    AlertDialog dialog;
     RecyclerView recyclerView;
     LinearLayout newPlaylistButton;
+    ImageView cancelButton;
+    TextView moveButton;
+    TextView copyButton;
 
     ListOfPlaylists listOfPlaylists;
     Playlist currentPlaylist;
     RadioStation station;
 
-
     ArrayList<Integer> originalIndexes;
     ArrayList<Integer> forRadioStations;
-    ArrayList<Boolean> contains;
+    ArrayList<Integer> selectedItems;
     boolean custom;
     int length;
 
     ManagePlaylistsDialog(MainActivity _activity, int _forRadioStation) {
+        super(_activity, R.style.BottomSheetDialogTheme);
         initializeDialog(_activity);
         station = currentPlaylist.getRadioStationAt(_forRadioStation);
 
@@ -47,30 +50,32 @@ class ManagePlaylistsDialog {
         }
 
         length = originalIndexes.size();
-        contains = new ArrayList<>();
-        if (length == 1) contains.add(true);
-        else for (int i = 0; i < length; i++) contains.add(false);
-
+        selectedItems = new ArrayList<>();
+        if (length == 1) selectedItems.add(0);
         recyclerView.setAdapter(new ManagePlaylistsAdapter());
 
-        builder.setPositiveButton(custom ? R.string.copy : R.string.dialog_button_add, (dialog1, which) -> {
-            if (copyRadioStation()) activity.showMessage(custom ? activity.getString(R.string.copied) : "Eklendi.");
-            else activity.showMessage("Oynatma listesi seçilmedi.");
+        copyButton.setOnClickListener(v -> {
+            dismiss();
+            activity.setSelectionMode(false);
+            if (copyRadioStation()) activity.showMessage(custom ? R.string.copied : R.string.added);
+            else activity.showMessage(R.string.playlist_not_selected);
         });
 
         if (custom) {
-            builder.setNeutralButton(R.string.move, (dialog1, which) -> {
+            moveButton.setOnClickListener(v -> {
+                dismiss();
+                activity.setSelectionMode(false);
                 if (copyRadioStation()) {
                     currentPlaylist.removeRadioStation(_forRadioStation);
                     activity.playlistAdapter.removeItem(_forRadioStation);
                     activity.showMessage(R.string.moved);
-                } else activity.showMessage("Oynatma listesi seçilmedi.");
+                } else activity.showMessage(R.string.playlist_not_selected);
             });
         }
-        dialog = builder.create();
     }
 
     ManagePlaylistsDialog(MainActivity _activity, ArrayList<Integer> _forRadioStations) {
+        super(_activity, R.style.BottomSheetDialogTheme);
         initializeDialog(_activity);
 
         originalIndexes = new ArrayList<>();
@@ -83,27 +88,27 @@ class ManagePlaylistsDialog {
         }
         length = originalIndexes.size();
 
-        contains = new ArrayList<>();
-        if (length == 1) contains.add(true);
-        else for (int i = 0; i < length; i++) contains.add(false);
+        selectedItems = new ArrayList<>();
+        if (length == 1) selectedItems.add(0);
         recyclerView.setAdapter(new ManagePlaylistsAdapter());
 
-        builder.setPositiveButton(custom ? R.string.copy : R.string.dialog_button_add, (dialog1, which) -> {
+        copyButton.setOnClickListener(v -> {
+            dismiss();
             activity.setSelectionMode(false);
-            if (copyRadioStations()) activity.showMessage(custom ? activity.getString(R.string.copied) : "Eklendi.");
-            else activity.showMessage("Oynatma listesi seçilmedi.");
+            if (copyRadioStations()) activity.showMessage(custom ? R.string.copied : R.string.added);
+            else activity.showMessage(R.string.playlist_not_selected);
         });
 
         if (custom) {
-            builder.setNeutralButton(R.string.move, (dialog1, which) -> {
+            moveButton.setOnClickListener(v -> {
+                dismiss();
                 activity.setSelectionMode(false);
                 if (copyRadioStations()) {
                     currentPlaylist.removeRadioStations(forRadioStations);
                     activity.showMessage(R.string.moved);
-                } else activity.showMessage("Oynatma listesi seçilmedi.");
+                } else activity.showMessage(R.string.playlist_not_selected);
             });
         }
-        dialog = builder.create();
     }
 
     private void initializeDialog(MainActivity _activity) {
@@ -112,10 +117,7 @@ class ManagePlaylistsDialog {
         currentPlaylist = activity.currentPlaylist;
         custom = activity.currentLopIndex == 0;
 
-        builder = new AlertDialog.Builder(activity, R.style.Theme_OnlinePlaylistsDialogDark);
-        builder.setTitle(R.string.add_to_playlist);
-        builder.setNegativeButton(R.string.dialog_button_cancel, null);
-        View dialogView = activity.getLayoutInflater().inflate(R.layout.manage_playlists, null);
+        View dialogView = getLayoutInflater().inflate(R.layout.manage_playlists, null);
         recyclerView = dialogView.findViewById(R.id.recycler);
         recyclerView.setLayoutManager(new LinearLayoutManager(activity));
 
@@ -123,44 +125,49 @@ class ManagePlaylistsDialog {
         newPlaylistButton.setOnClickListener(v ->
                 new PlaylistDialog(activity, this).show());
 
-        builder.setView(dialogView);
+        cancelButton = dialogView.findViewById(R.id.cancelButton);
+        cancelButton.setOnClickListener(v -> cancel());
+
+        moveButton = dialogView.findViewById(R.id.moveButton);
+        copyButton = dialogView.findViewById(R.id.copyButton);
+
+        setContentView(dialogView);
+        getBehavior().setState(BottomSheetBehavior.STATE_EXPANDED);
+    }
+
+    @Override
+    public void show() {
+        refreshButtons();
+        super.show();
     }
 
     private boolean copyRadioStation() {
         boolean copied = false;
-        for (int i = 0; i < length; i++) {
-            Playlist playlist = listOfPlaylists.getPlaylistAt(originalIndexes.get(i));
-            if (contains.get(i)) {
-                playlist.addRadioStation(station);
-                if (activity.playingPlaylistIndex == originalIndexes.get(i)) activity.playingRadioStationIndex++;
-                copied = true;
-            }
+        for (Integer i : selectedItems) {
+            listOfPlaylists.getPlaylistAt(originalIndexes.get(i)).addRadioStation(station);
+            if (activity.playingPlaylistIndex == originalIndexes.get(i)) activity.playingRadioStationIndex++;
+            copied = true;
         }
         return copied;
     }
 
     private boolean copyRadioStations() {
         boolean copied = false;
-        for (int i = 0; i < length; i++) {
-            if (contains.get(i)) {
-                Playlist playlist = listOfPlaylists.getPlaylistAt(originalIndexes.get(i));
-                for (int j = forRadioStations.size() - 1; j >= 0; j--) {
-                    RadioStation radioStation = activity.currentPlaylist.getRadioStationAt(forRadioStations.get(j));
-                    if (!playlist.contains(radioStation)) playlist.addRadioStation(radioStation);
-                }
-                if (activity.playingPlaylistIndex == originalIndexes.get(i)) activity.playingRadioStationIndex += forRadioStations.size();
-                copied = true;
+        for (Integer i : selectedItems) {
+            Playlist playlist = listOfPlaylists.getPlaylistAt(originalIndexes.get(i));
+            for (int j = forRadioStations.size() - 1; j >= 0; j--) {
+                RadioStation radioStation = activity.currentPlaylist.getRadioStationAt(forRadioStations.get(j));
+                if (!playlist.contains(radioStation)) playlist.addRadioStation(radioStation);
             }
+            if (activity.playingPlaylistIndex == originalIndexes.get(i)) activity.playingRadioStationIndex += forRadioStations.size();
+            copied = true;
         }
         return copied;
     }
 
-    public void show() {
-        dialog.show();
-    }
-
     public void refresh() {
-        contains.add(0, true);
+        selectedItems.replaceAll(integer -> integer + 1);
+        selectedItems.add(0, 0);
         originalIndexes.replaceAll(integer -> integer + 1);
         originalIndexes.add(0, 0);
         length++;
@@ -169,6 +176,12 @@ class ManagePlaylistsDialog {
             recyclerView.scrollToPosition(0);
             recyclerView.getAdapter().notifyItemRangeChanged(1, length - 1);
         }
+        refreshButtons();
+    }
+
+    private void refreshButtons() {
+        moveButton.setVisibility(selectedItems.isEmpty() ? View.GONE : View.VISIBLE);
+        copyButton.setVisibility(selectedItems.isEmpty() ? View.GONE : View.VISIBLE);
     }
 
     private class ManagePlaylistsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
@@ -187,19 +200,17 @@ class ManagePlaylistsDialog {
         @Override
         public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
             View view = holder.itemView;
-            int pos = holder.getAdapterPosition();
+            int pos = holder.getBindingAdapterPosition();
             LinearLayout layout = view.findViewById(R.id.layout);
-            CheckBox checkBox = view.findViewById(R.id.checkBox);
             ImageView icon = view.findViewById(R.id.playlistIcon);
             TextView title = view.findViewById(R.id.playlistTitle);
             TextView size = view.findViewById(R.id.playlistSize);
 
             Playlist playlist = listOfPlaylists.getPlaylistAt(originalIndexes.get(pos));
-            icon.setImageResource(contains.get(pos) ? R.drawable.baseline_done_24 : icons[playlist.icon]);
-            icon.setBackgroundResource(contains.get(pos) ? R.drawable.playlist_icon_selected : R.drawable.playlist_icon);
+            icon.setImageResource(selectedItems.contains(pos) ? R.drawable.baseline_done_24 : icons[playlist.icon]);
+            icon.setBackgroundResource(selectedItems.contains(pos) ? R.drawable.playlist_icon_selected : R.drawable.playlist_icon);
             title.setText(playlist.title);
             size.setText(String.format(activity.getString(R.string.n_stations), playlist.getLength()));
-            checkBox.setChecked(contains.get(pos));
             setOnClickListener(layout, pos);
         }
 
@@ -210,8 +221,10 @@ class ManagePlaylistsDialog {
 
         private void setOnClickListener(View view, int position) {
             view.setOnClickListener(v -> {
-                contains.set(position, !contains.get(position));
+                if (selectedItems.contains(position)) selectedItems.remove((Integer) position);
+                else selectedItems.add(position);
                 notifyItemChanged(position);
+                refreshButtons();
             });
         }
     }

@@ -1,18 +1,25 @@
 package com.example.worldradio;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashMap;
 
 public class Playlist {
     public String title, countryCode, playlistId;
-    public int icon, type, length;
+    public int icon, type, length, sortBy;
     private ArrayList<RadioStation> radioStations;
 
     private static long currentMillis;
     private static int idCounter;
+
+    public static final int TITLE = 0;
+    public static final int BITRATE = 1;
+    public static final int CODEC = 2;
 
     Playlist() {
         title = "";
@@ -40,23 +47,55 @@ public class Playlist {
         radioStations = new ArrayList<>();
     }
 
-    Playlist (String _json, boolean isTempJson) {
-        HashMap<String, Object> map = Json.toMap(_json);
-        title = (String) map.get("title");
-        icon = map.containsKey("icon") ? Integer.parseInt((String) map.get("icon")) : R.drawable.baseline_featured_play_list_24;
-        ArrayList<String> sourceList = Json.toList((String) map.get("radioStations"));
-        RadioStation ytv;
-        radioStations = new ArrayList<>();
-        for (String i: sourceList) {
-            ytv = new RadioStation().fromJson(i, isTempJson);
-            radioStations.add(ytv);
+    Playlist(JSONObject jsonObject) {
+        fromJSONObject(jsonObject);
+    }
+
+    Playlist(String jsonString) {
+        try {
+            fromJSONObject(new JSONObject(jsonString));
+        } catch (JSONException e) {
+            title = "";
+            icon = 0;
+            radioStations = new ArrayList<>();
+            countryCode = "";
+            type = 0;
+            length = 0;
+            playlistId = generateId();
         }
-        if (isTempJson) {
-            countryCode = (String) map.get("countryCode");
-            type = map.containsKey("type") ? Integer.parseInt((String) map.get("type")) : 0;
-            length = map.containsKey("length") ? Integer.parseInt((String) map.get("length")) : 0;
-        } else {
-            playlistId = (String) map.getOrDefault("playlistId", generateId());
+    }
+
+    private void fromJSONObject(JSONObject jsonObject) {
+        title = jsonObject.optString("title");
+        icon = jsonObject.optInt("icon", 0);
+        playlistId = jsonObject.optString("playlistId", generateId());
+        countryCode = jsonObject.optString("countryCode", "");
+        type = jsonObject.optInt("type", 0);
+        length = jsonObject.optInt("length", 0);
+        sortBy = jsonObject.optInt("sortBy", 0);
+        radioStations = new ArrayList<>();
+        JSONArray radioStationsArray;
+        try {
+            radioStationsArray = jsonObject.getJSONArray("radioStations");
+        } catch (JSONException e) {
+            try {
+                radioStationsArray = new JSONArray(jsonObject.getString("radioStations"));
+            } catch (JSONException f) {
+                radioStationsArray = new JSONArray();
+            }
+        }
+        for (int i = 0; i < radioStationsArray.length(); i++) {
+            try {
+                JSONObject object = radioStationsArray.getJSONObject(i);
+                radioStations.add(new RadioStation(object));
+            } catch (JSONException e) {
+                try {
+                    String json = radioStationsArray.getString(i);
+                    radioStations.add(new RadioStation(json));
+                } catch (JSONException f) {
+                    radioStations.add(new RadioStation("{}"));
+                }
+            }
         }
     }
 
@@ -120,6 +159,16 @@ public class Playlist {
         else for (int i = from; i > to; i--) Collections.swap(radioStations, i, i - 1);
     }
 
+    public void sort(int _sortBy) {
+        sortBy = _sortBy;
+        if (sortBy == TITLE)
+            radioStations.sort(Comparator.comparing(station -> station.title));
+        if (sortBy == BITRATE)
+            radioStations.sort(Comparator.comparing(station -> station.bitrate, Comparator.reverseOrder()));
+        if (sortBy == CODEC)
+            radioStations.sort(Comparator.comparing(station -> station.codec));
+    }
+
     public RadioStation getRadioStationAt(int index) {
         return radioStations.get(index);
     }
@@ -130,22 +179,29 @@ public class Playlist {
 
     public boolean isEmpty() {return radioStations.isEmpty();}
 
-    public int getLength() {return length == 0 ? radioStations.size() : length;}
+    public int getLength() {return radioStations.isEmpty() ? length : radioStations.size();}
 
-    public String getJson(boolean forTempJson) {
-        HashMap<String, Object> map = new HashMap<>();
-        ArrayList<String> list = new ArrayList<>();
-        for (RadioStation i : radioStations) list.add(i.getJson(forTempJson));
-        map.put("title", title);
-        map.put("icon", String.valueOf(icon));
-        map.put("radioStations", Json.valueOf(list));
-        if (forTempJson) {
-            map.put("countryCode", countryCode);
-            map.put("type", String.valueOf(type));
-            map.put("length", String.valueOf(length));
-        } else {
-            map.put("playlistId", playlistId);
+    public JSONObject toJSONObject(boolean forTempJson) {
+        JSONArray radioStationsArray = new JSONArray();
+        for (RadioStation i : radioStations) radioStationsArray.put(i.toJSONObject());
+        JSONObject jsonObject = new JSONObject();
+        try {
+            jsonObject.put("title", title)
+                    .put("icon", icon)
+                    .put("radioStations", radioStationsArray);
+            if (forTempJson) {
+                jsonObject.put("countryCode", countryCode)
+                        .put("type", type)
+                        .put("length", length)
+                        .put("sortBy", sortBy);
+            } else jsonObject.put("playlistId", playlistId);
+        } catch (JSONException e) {
+            e.printStackTrace();
         }
-        return Json.valueOf(map);
+        return jsonObject;
+    }
+
+    public String toJsonString(boolean forTempJson) {
+        return toJSONObject(forTempJson).toString();
     }
 }

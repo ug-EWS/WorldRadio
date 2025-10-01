@@ -2,6 +2,10 @@ package com.example.worldradio;
 
 import androidx.annotation.NonNull;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.text.Collator;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -10,19 +14,37 @@ import java.util.Comparator;
 public class ListOfPlaylists {
     ArrayList<Playlist> playlists;
 
-    ListOfPlaylists(){
+    ListOfPlaylists() {
         playlists = new ArrayList<>();
     }
 
-    public ListOfPlaylists fromJson(String _json, boolean isTempJson) {
-        playlists = new ArrayList<>();
-        ArrayList<String> list = Json.toList(_json);
+    ListOfPlaylists(String jsonString) {
+        fromJsonString(jsonString);
+    }
 
-        for (String i : list) {
-            playlists.add(new Playlist(i, isTempJson));
+    public void fromJsonString(String jsonString) {
+        try {
+            fromJSONArray(new JSONArray(jsonString));
+        } catch (JSONException e) {
+            playlists = new ArrayList<>();
         }
+    }
 
-        return this;
+    private void fromJSONArray(JSONArray jsonArray) {
+        playlists = new ArrayList<>();
+        for (int i = 0; i < jsonArray.length(); i++) {
+            try {
+                JSONObject jsonObject = jsonArray.getJSONObject(i);
+                playlists.add(new Playlist(jsonObject));
+            } catch (JSONException e) {
+                try {
+                    String json = jsonArray.getString(i);
+                    playlists.add(new Playlist(json));
+                } catch (JSONException f) {
+                    playlists.add(new Playlist("{}"));
+                }
+            }
+        }
     }
 
     public void addPlaylist(Playlist p) {
@@ -48,12 +70,16 @@ public class ListOfPlaylists {
         return playlists.indexOf(playlist);
     }
 
-    public String getJson(boolean forTempJson) {
-        ArrayList<String> list = new ArrayList<>();
+    private JSONArray toJSONArray(boolean forTempJson) {
+        JSONArray jsonArray = new JSONArray();
         for (Playlist i : playlists) {
-            list.add(i.getJson(forTempJson));
+            jsonArray.put(i.toJSONObject(forTempJson));
         }
-        return Json.valueOf(list);
+        return jsonArray;
+    }
+
+    public String toJsonString(boolean forTempJson) {
+        return toJSONArray(forTempJson).toString();
     }
 
     public int getLength() {

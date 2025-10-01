@@ -23,7 +23,7 @@
             android:title="Web sitesine git" />
         <item
             android:id="@+id/copyUrl"
-            android:title="Yayın URL'sini kopyala" />
+            android:title="@string/copy_stream_url" />
         <item
             android:id="@+id/delete"
             android:title="@string/delete" />

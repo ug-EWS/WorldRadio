@@ -113,7 +113,7 @@
                     android:layout_weight="1"
                     android:singleLine="true"
                     android:text="@string/app_name"
-                    android:textColor="@color/grey1"
+                    android:textColor="@color/grey6"
                     android:textSize="17sp" />
 
                 <ImageView
@@ -212,7 +212,7 @@
                     android:layout_weight="1"
                     android:background="@drawable/edit_text_bg"
                     android:ems="10"
-                    android:hint="Arayın..."
+                    android:hint="@string/search_hint"
                     android:inputType="text"
                     android:padding="8dp"
                     android:textColor="@color/grey1"
@@ -303,7 +303,8 @@
                         android:paddingTop="8dp"
                         android:paddingBottom="140dp"
                         android:scrollbarStyle="outsideOverlay"
-                        android:scrollbars="vertical">
+                        android:scrollbars="vertical"
+                        android:visibility="gone">
 
                     </androidx.recyclerview.widget.RecyclerView>
 
@@ -314,17 +315,42 @@
                         android:clipToPadding="false"
                         android:paddingBottom="140dp"
                         android:scrollbarStyle="outsideOverlay"
-                        android:scrollbars="vertical">
+                        android:scrollbars="vertical"
+                        android:visibility="gone">
 
                     </androidx.recyclerview.widget.RecyclerView>
 
-                    <TextView
-                        android:id="@+id/warning"
+                    <LinearLayout
+                        android:id="@+id/infoLayout"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
                         android:gravity="center"
-                        android:text="@string/no_playlists"
-                        android:textSize="16sp" />
+                        android:orientation="vertical">
+
+                        <ImageView
+                            android:id="@+id/warningIcon"
+                            android:layout_width="40dp"
+                            android:layout_height="40dp"
+                            android:layout_marginBottom="16dp"
+                            app:srcCompat="@drawable/baseline_info_outline_24" />
+
+                        <TextView
+                            android:id="@+id/infoText"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginBottom="16dp"
+                            android:gravity="center_horizontal"
+                            android:text="@string/no_playlists"
+                            android:textSize="16sp" />
+
+                        <ProgressBar
+                            android:id="@+id/loadingBar"
+                            style="?android:attr/progressBarStyleHorizontal"
+                            android:layout_width="150dp"
+                            android:layout_height="wrap_content"
+                            android:indeterminate="true"
+                            android:indeterminateBehavior="cycle" />
+                    </LinearLayout>
 
                 </LinearLayout>
 
@@ -342,9 +368,23 @@
                     android:orientation="vertical"
                     android:padding="16dp">
 
+                    <CheckBox
+                        android:id="@+id/showBitrateButton"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Bit hızını daima göster" />
+
+                    <CheckBox
+                        android:id="@+id/showCodecButton"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Codec'i daima göster" />
+
                     <TextView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
+                        android:layout_marginTop="40dp"
                         android:paddingStart="32dp"
                         android:text="@string/auto_shut_down"
                         android:textStyle="bold" />

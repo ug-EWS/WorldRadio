@@ -1,57 +1,66 @@
 package com.example.worldradio;
 
-import java.util.HashMap;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 public class RadioStation {
     public String title;
     public String id;
     public String url;
     public String faviconUrl;
-    public String hls;
     public String homepage;
-    public String clickTrend;
+    public String codec;
+    public int bitrate;
 
-    RadioStation() {
-        title = "";
-        id = "";
-        url = "";
-        faviconUrl = "";
-        hls = "";
-        homepage = "";
-        clickTrend = "";
-    }
-
-    RadioStation(String _title, String _id, String _url, String _faviconUrl, String _hls, String _homepage, String _clickTrend) {
+    RadioStation(String _title, String _id, String _url, String _faviconUrl, String _homepage, String _codec, int _bitrate) {
         title = _title;
         id = _id;
         url = _url;
         faviconUrl = _faviconUrl;
-        hls = _hls;
         homepage = _homepage;
-        clickTrend = _clickTrend;
+        codec = _codec;
+        bitrate = _bitrate;
     }
 
-    public RadioStation fromJson(String _json, boolean isTempJson) {
-        HashMap<String, Object> map = Json.toMap(_json);
-        title = map.get("title").toString();
-        id = map.get("id").toString();
-        url = map.get("url").toString();
-        faviconUrl = map.get("faviconUrl").toString();
-        if (map.containsKey("hls")) hls = map.get("hls").toString();
-        if (map.containsKey("homepage")) homepage = map.get("homepage").toString();
-        if (isTempJson && map.containsKey("clickTrend")) clickTrend = map.get("clickTrend").toString();
-        return this;
+    RadioStation(JSONObject jsonObject) {
+        fromJSONObject(jsonObject);
     }
 
-    public String getJson(boolean isTempJson) {
-        HashMap<String, Object> map = new HashMap<>();
-        map.put("title", title);
-        map.put("id", id);
-        map.put("url", url);
-        map.put("faviconUrl", faviconUrl);
-        map.put("hls", hls);
-        map.put("homepage", homepage);
-        if (isTempJson) map.put("clickTrend", clickTrend);
-        return Json.valueOf(map);
+    RadioStation(String jsonString) {
+        try {
+            fromJSONObject(new JSONObject(jsonString));
+        } catch (JSONException e) {
+            title = "";
+            id = "";
+            url = "";
+            faviconUrl = "";
+            homepage = "";
+        }
+    }
+
+    private void fromJSONObject(JSONObject jsonObject) {
+        title = jsonObject.optString("title");
+        id = jsonObject.optString("id");
+        url = jsonObject.optString("url");
+        faviconUrl = jsonObject.optString("faviconUrl");
+        homepage = jsonObject.optString("homepage");
+        codec = jsonObject.optString("codec");
+        bitrate = jsonObject.optInt("bitrate");
+    }
+
+    public JSONObject toJSONObject() {
+        JSONObject jsonObject = new JSONObject();
+        try {
+            jsonObject.put("title", title)
+                    .put("id", id)
+                    .put("url", url)
+                    .put("faviconUrl", faviconUrl)
+                    .put("homepage", homepage)
+                    .put("codec", codec)
+                    .put("bitrate", bitrate);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return jsonObject;
     }
 }

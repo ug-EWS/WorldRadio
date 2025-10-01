@@ -40,7 +40,7 @@ class SearchResultsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
     @Override
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
         View itemView = holder.itemView;
-        int pos = holder.getAdapterPosition();
+        int pos = holder.getBindingAdapterPosition();
 
         ImageView thumbnail = itemView.findViewById(R.id.videoThumbnail);
         TextView title = itemView.findViewById(R.id.videoTitle);
@@ -66,7 +66,7 @@ class SearchResultsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder>
                 activity.currentPlaylist.addRadioStationTo(_station, dialog.whereToAdd);
                 activity.playlistAdapter.insertItem(dialog.whereToAdd);
                 activity.updateNoItemsView();
-                dialog.dialog.dismiss();
+                dialog.dismiss();
                 activity.playlistRecycler.scrollToPosition(dialog.whereToAdd);
             }
         });

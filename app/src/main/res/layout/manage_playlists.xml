@@ -7,6 +7,54 @@
     android:orientation="vertical">
 
     <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <ImageView
+            android:id="@+id/cancelButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/ripple_on_dark_grey"
+            android:padding="16dp"
+            app:srcCompat="@drawable/baseline_close_24" />
+
+        <TextView
+            android:id="@+id/textView6"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:singleLine="true"
+            android:text="@string/add_to_playlist"
+            android:textColor="@color/grey4"
+            android:textSize="18sp" />
+
+        <TextView
+            android:id="@+id/moveButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/ripple_list"
+            android:padding="16dp"
+            android:text="@string/move"
+            android:textAllCaps="true"
+            android:textColor="@color/teal_700"
+            android:textSize="16sp" />
+
+        <TextView
+            android:id="@+id/copyButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/ripple_list"
+            android:padding="16dp"
+            android:text="@string/copy"
+            android:textAllCaps="true"
+            android:textColor="@color/teal_700"
+            android:textSize="16sp" />
+
+    </LinearLayout>
+
+    <LinearLayout
         android:id="@+id/newPlaylistButton"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -16,14 +64,6 @@
         android:gravity="center_vertical"
         android:orientation="horizontal"
         android:paddingStart="8dp">
-
-        <CheckBox
-            android:id="@+id/checkBox"
-            android:layout_width="28dp"
-            android:layout_height="28dp"
-            android:clickable="false"
-            android:focusable="false"
-            android:visibility="gone" />
 
         <ImageView
             android:id="@+id/playlistIcon"
@@ -48,38 +88,21 @@
                 android:id="@+id/playlistTitle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Yeni oynatma listesi"
+                android:text="@string/new_playlist"
                 android:textColor="@color/grey1"
                 android:textSize="16sp" />
 
         </LinearLayout>
 
-        <ImageView
-            android:id="@+id/playlistOptions"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_margin="3dp"
-            android:layout_weight="0"
-            android:padding="13dp"
-            android:visibility="gone"
-            app:srcCompat="@drawable/baseline_more_vert_24" />
     </LinearLayout>
 
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/linearLayout"
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recycler"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:minHeight="200dp"
+        android:scrollbarAlwaysDrawVerticalTrack="true"
+        android:scrollbarStyle="insideInset"
+        android:scrollbars="vertical" />
 
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/recycler"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:scrollbarAlwaysDrawVerticalTrack="true"
-            android:scrollbarStyle="insideInset"
-            android:scrollbars="vertical"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHeight_max="400dp"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
-    </androidx.constraintlayout.widget.ConstraintLayout>
 </LinearLayout>
